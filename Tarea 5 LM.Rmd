@@ -1,0 +1,237 @@
+---
+title: "Tarea 5 LM"
+author: "Sebastian Alzate Vargas"
+date: "Febrero 25/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Problema 1
+El modelo no intercepto es $y_i=\beta x_i+\epsilon_i$, donde $\epsilon_i\sim N(0, \sigma^2)$, $\sigma$ conocido.
+```{r Datos}
+library(ggplot2)
+set.seed(123)
+x=1:10
+y=round(10*x+rnorm(10, 0, 10), 1)
+rbind(x, y)
+```
+
+Encuentre el estimador por minímos cuadrados de $\hat\beta$ de $\beta$.
+
+## Solución 1
+El modelo no intercepto es: $y_i=\hat{\beta} x_i+\varepsilon_i$. Asi, 
+\begin{align*}
+    \hat{y_i}&=\hat{\beta} x_i
+\end{align*}
+
+Como queremos minimizar la distancia entre $y_i$ y $\hat{y_i}$, entonces por mínimos cuadrados tenemos
+$$\sum(y_i-\hat{y_i})^2$$
+Encontremos $\hat{\beta}$,
+\begin{align*}
+    0&=\dfrac{d\sum(y_i-\hat{y_i})^2}{d\beta}\\
+    &=\dfrac{d\sum(y_i-\beta x_i)^2}{d\beta}\\
+    &=\sum(-2x_i)(y_i-\beta x_i)\\
+    &=-2\sum x_iy_i+2\beta \sum x_i^2\\
+    &=-n\overline{XY}+n\beta \overline{X^2}\\
+    &=-\overline{XY}+\beta \overline{X^2}
+\end{align*}
+Así,
+$\hat{\beta}=\dfrac{\sum x_iy_i}{\sum x_i^2}=\dfrac{\overline{XY}}{\overline{X^2}}$
+
+```{R Beta estimado}
+#Beta estimado
+beta<-mean(x*y)/mean(x^2)
+beta
+
+ggplot(data.frame(x,y), aes(x,y))+geom_point()+
+  geom_abline(intercept = 0, slope = beta, color="red", size=0.5)
+```
+
+# Problema 2
+Muestre que $\hat\beta$ es un estimador insesgado para $\beta$. Encuentre la varianza
+
+## Solución 2
+hallemos su esperanza
+\begin{align*}
+   E\left(\hat{\beta}\right) &=E\left(\frac{\overline{XY}}{\overline{X^2}}\right) =E\left(\frac{\sum x_iy_i}{\sum x_i^2}\right) \\
+    &= \frac{1}{\sum x_i^2}E\left(\sum x_iy_i\right) \\
+    &= \frac{1}{\sum x_i^2}\sum\left(x_i\cdot E(y_i)\right) \\
+    &= \frac{1}{\sum x_i^2}\sum\left(x_i\cdot (\beta x_i)\right) \\
+    &= \frac{\beta \sum x_i^2}{\sum x_i^2} \\
+    &= \beta
+\end{align*}
+Así $\hat{\beta}$ es insesgado para $\beta$
+
+
+Hallemos la varianza. primero veamos que 
+
+\begin{align*}
+    var(y_i) &=E\left( \left[ y_i -E(y_i) \right]^2 \right)\\
+    &=E\left( \left[ y_i - \beta x_i \right]^2 \right)\\
+    &=E(\varepsilon_i^2)\\
+    &=E(\varepsilon_i^2)-0\\
+    &=E(\varepsilon_i^2)-[E(\varepsilon_i)]^2\\
+    &=var(\varepsilon_i)\\
+    &= \sigma^2
+\end{align*}
+
+Así,
+
+\begin{align*}
+    var(\hat{\beta}) &= var\left(\frac{\sum x_iy_i}{\sum x_i^2}\right) \\
+    &= \frac{1}{\left(\sum x_i^2\right)^2}var\left(\sum x_iy_i\right) \\
+    &= \frac{1}{\left(\sum x_i^2\right)^2}\sum\left(x_i^2\cdot var(y_i)\right) \\
+    &= \frac{1}{\left(\sum x_i^2\right)^2}\sum\left(x_i^2\cdot \sigma^2\right) \\
+    &=  \frac{\sigma^2}{\sum x_i^2}
+\end{align*}
+```{R Varianza de bata estimado}
+#varinaza de beta estimado
+var<-100/sum(x^2)
+var
+```
+
+# Problema 3
+Encuentre la distribución de $\hat\beta$
+
+## Solución 3
+Tenemos que $y_i=\beta x_i+\varepsilon_i$ con  $\beta$ y $x_i$ constantes. Además, $\varepsilon_i \sim N(0,\sigma^2)$, entonces $y_i$ sigue una distribución normal porque es una combinación lineal de normales, con parámetros: 
+
+$$y_i \sim N(\beta x_i, \sigma^2)$$
+
+Por otro lado, $\hat{\beta}=\dfrac{\sum x_iy_i}{\sum x_i^2}$ que también es una combinación lineal de distribuciones normales. En el ejercicio 2, encontramos la media y varianza. Así, $$\hat{\beta} \sim N\left(\beta, \frac{\sigma^2}{\sum x_i^2} \right)$$ 
+
+# Problema 4
+Utilice el problema 3 para encontrar un $90 \%$ intervalo de confianza para $\beta$ para los datos.
+
+## Solución 4
+Tenemos que $$\hat{\beta} \sim N\left(\beta, \frac{\sigma^2}{\sum x_i^2} \right)$$
+
+Utilizando este resultado
+
+\begin{align*}
+Z= \dfrac{\hat{\beta}-\beta}{\sigma/\sqrt{\sum x_i^2} }
+\end{align*}
+
+
+\noindent Construyamos un intervalo de confianza del $(1-\alpha)\%$
+
+\begin{align*}
+    1-\alpha=&P\left(-z_{\alpha/2} \leq \dfrac{\hat\beta-{\beta}}{s/\sqrt{\sum{x_i^2}}} \leq z_{\alpha/2}\right) \\ 
+    =&P\left(\hat{\beta}-z_{\alpha/2} \frac{\sigma}{\sqrt{\sum{x_i}^2}} \leq \beta \leq \hat{\beta}+z_{\alpha/2} \frac{\sigma}{\sqrt{\sum{x_i}^2}}\right)
+\end{align*}
+
+Por lo tanto, si queremos un intervalo de confianza del $90\%$ entonces $\alpha=0.1$
+
+```{R Intervalo de confianza}
+# intervalo de confianza
+n<-length(x)
+alp<-0.1
+sig<-10
+TS=sig/sqrt(sum((x)^2))
+c(beta+qnorm(alp/2)*TS,beta-qnorm(alp/2)*TS)
+```
+
+
+# Problema 5
+Encuentre el mle de $\beta$
+
+## Solución 5
+Del problema 3 tenemos: $y_i \sim N(\beta x_i, \sigma^2)$
+\begin{align*}
+    L(\beta)&=\prod f\left(y_i \vert \beta \right)\\
+    &= \prod \dfrac{1}{\sqrt{2\pi\sigma^2}}\cdot \exp \left\{-\dfrac{1}{2}\dfrac{ (y_i-\beta x_i)^2}{\sigma^2}
+\right \}\\
+&= \left( 2\pi \sigma^2\right)^{-n/2}\cdot 
+\exp \left\{-\dfrac{1}{2\sigma^2}\sum (y_i-\beta x_i)^2
+\right \}
+\end{align*}
+Asi, 
+\begin{align*}
+    \log L(\beta)=-\frac{n}{2}\log\left(  2\pi \sigma^2\right)-\dfrac{1}{2\sigma^2}\sum (y_i-\beta x_i)^2
+\end{align*}
+Derivemos con respecto a $\beta$ para encontrar el máximo de la función
+\begin{align*}
+    \dfrac{d\log L(\beta)}{d\beta}=\dfrac{1}{\sigma^2}\sum (y_i-\beta x_i)
+\end{align*}
+Entonces el estimador de $\beta$ esta dado por:
+$$\hat{\beta}=\dfrac{\sum y_i}{\sum x_i}=\frac{\overline{Y}}{\overline{X}}$$
+```{R #Beta estimado mle}
+#Beta estimado mle
+bet<-mean(y)/mean(x)
+bet
+```
+```{R}
+ggplot(data.frame(x,y), aes(x,y))+geom_point()+
+  geom_abline(intercept = 0, slope = bet, color="blue", size=0.5)
+```
+
+# Problema 6
+Sea $\sigma$ conocido. Muestre que $$s^2=\frac{1}{n-1}\sum_{i=1}^n (y_i-\hat{\beta}x_i)^2$$
+
+Es un estimador insesgado para $\sigma^2$
+
+## Solución 6
+\begin{align*}
+   \sum( y_i-\hat{y_i})^2&= \sum(y_i-\hat{y_i})(y_i-\hat{y_i})\\
+   &= \sum( y_i-\hat{y_i}) y_i+ \sum(y_i-\hat{y_i})\hat{y_i}
+\end{align*}
+
+Veamos que $\sum (y_i-\hat{y_i})\hat{y_i}=0$
+
+\begin{align*}
+    \sum (y_i-\hat{y_i})\hat{y_i}&=\sum (y_i-\hat{y_i})\hat{\beta}x_i\\
+    &=\hat{\beta}\sum (y_i-\hat{y_i})x_i\\
+    &=\hat{\beta}\left(\sum y_i x_i-\sum \hat{\beta}x_i^2 \right)\\
+    &= \hat{\beta}\left(n\overline{XY}-n\beta \overline{X^2}\right)\\
+    &= \hat{\beta}n\left(\overline{XY}-\beta \overline{X^2}\right)\\
+     &= \hat{\beta}n(0) \ \ \mbox{Procedimiento punto 1}\\
+     &=0
+\end{align*}
+
+Asi, 
+
+\begin{align*}
+    \sum( y_i-\hat{y_i})^2&=\sum( y_i-\hat{y_i}) y_i  \\
+    &= \sum( y_i-\hat{y_i})(\beta x_i+\varepsilon_i) \\
+   &= \sum \beta ( y_i-\hat{y_i})x_i + \sum( y_i-\hat{y_i})\varepsilon_i\\
+   &=  \sum( y_i-\hat{y_i})\varepsilon_i\\
+   &=\sum((\beta-\hat{\beta})x_i+\varepsilon_i)\varepsilon_i\\
+    &=\sum (\beta-\hat{\beta})x_i\varepsilon_i+\sum \varepsilon_i^2
+\end{align*}
+donde $\sum \beta ( y_i-\hat{y_i})x_i=0$ del reglón 2 del procedimiento anterior
+
+
+
+
+
+
+Por lo tanto, 
+
+\begin{align*}
+E(s^2)&= E\left(\dfrac{ {\sum(y_i -\hat{y_i})^2}}{n-1}\right)\\
+&= \frac{1}{n-1}\left[E\left({\sum ((\beta-\hat{\beta})x_i\varepsilon_i)}\right)+n\sigma^2\right] \\
+&= \frac{1}{n-1}\left[{\sum x_iE((\beta-\hat{\beta})\varepsilon_i)}\right]+\dfrac{n\sigma^2}{n-1}
+\end{align*}
+
+Notemos que:
+
+\begin{align*}
+    \hat{\beta} = \dfrac{\sum y_jx_j}{\sum x_j^2}&=\dfrac{\sum (\beta x_j+e_j)x_j }{\sum x_j^2} =  \dfrac{\sum \beta x_j^2 +\sum e_jx_j}{\sum x_j^2}=\beta+\dfrac{\sum e_jx_j}{\sum x_j^2}
+\end{align*}
+
+y además
+
+\begin{align*}
+ E({(\beta-\hat{\beta})\varepsilon_i})&= E({\beta \varepsilon_i})-E({\hat{\beta} \varepsilon_i})=0-E\left({\beta \varepsilon_i + \dfrac{\sum_j e_jx_j\varepsilon_i}{\sum x_j^2}}\right)\\ \\
+ &=-E\left({\dfrac{\sum_j x_je_j\varepsilon_i}{\sum x_j^2}}\right)=-\frac{E({ x_i\varepsilon_i^2)}}{\sum x_i^2}=-\dfrac{x_i\sigma^2}{\sum x_i^2}
+\end{align*}
+
+Reemplazando el resultado anterior
+
+\begin{align*}
+E(s^2)&= \frac{1}{n-1}\left[-\sum x_i\left(\dfrac{x_i\sigma^2}{\sum x_i^2}  \right) +n\sigma^2\right]\\ \\ 
+    &=\frac{1}{n-1}\left(-\sigma^2+n\sigma^2\right)\\
+    &=\sigma^2
+\end{align*}
+

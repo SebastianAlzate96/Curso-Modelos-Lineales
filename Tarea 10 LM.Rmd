@@ -1,0 +1,149 @@
+---
+title: "Homework 10"
+author: "Sebastian Alzate Vargas"
+date: "04/22/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Alternativas a la regresión por mínimos cuadrados
+Considere el siguiente conjunto de datos, con la línea de regresión de mínimos cuadrados:
+```{r}
+x<-c(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+y<-c(2.06, 2.12, 2.32, 2.02, 2.76, 3.04, 2.83, 3.15, 3.36, 3.68, 3.96)
+datos<-data.frame(x,y)
+library(ggplot2)
+ggplot(data=data.frame(x,y),aes(x,y))+geom_point()+
+  geom_abline(intercept = lm(y~x,datos)$coefficients[1] , slope=lm(y~x,datos)$coefficients[2], color="red")
+```
+
+# Problem 1: Orthogonal Regression
+En una regresión de mínimos cuadrados típica, definimos la distancia entre un punto de datos y la línea como la línea horizontal (roja), y luego minimizamos la suma de las distancias al cuadrado. Sin embargo, en geometría se define la distancia de un punto y una línea a través de la línea perpendicular (azul). Para el conjunto de datos a continuación, encuentre la mejor "línea perpendicular de mínimos cuadrados".
+
+# Problem 2: Least Absolute Values Regression
+Aquí uno usa el criterio
+
+$$\text{RSS}=\sum_{i=1}^n \vert y_i-a-bx_i\vert$$
+
+Vuelva a encontrar la línea correspondiente para el conjunto de datos anterior. Haga un argumento a favor de esta solución.
+
+# Solution 1
+Tenemos el modelo $y=\alpha+\beta x$ asi el $y$ estimado es: $\hat{y}=\hat{\alpha} + \hat{\beta}x$. Para encontrar la mínima suma de las lineas perpendiculares a esta. Necesitamos la formula para la distancia de un punto a una recta. La cual es:
+\begin{align*}
+    d_i= \frac{|y_i-\hat{y}|}{\sqrt{1+\beta^2}}
+\end{align*}
+Queremos minimizar la suma de esas distancias al cuadrado
+\begin{align*}
+    P(\alpha, \beta) = \sum d_i^2 = \sum \frac{(y_i-\hat{y_i})^2}{1+\beta^2} =  \sum \frac{(y_i-\alpha -\beta x_i)^2}{1+\beta^2}
+\end{align*}
+Derivando con respecto a $\alpha$
+\begin{align*}
+    \dfrac{\partial}{\partial \alpha} P(\alpha,\beta) = \dfrac{-2}{1+\beta^2}\sum (y_i-\alpha -\beta x_i)
+\end{align*}
+Igualando a cero tenemos que 
+\begin{align*}
+    n \alpha&=\sum y_i - \beta \sum x_i\\
+   \hat\alpha&= \overline{y} - \beta \overline{x} 
+\end{align*}
+Derivando con respecto a $\beta$ tenemos que 
+\begin{align*}
+    \dfrac{\partial}{\partial \beta} P(\alpha,\beta) = \sum \frac{2(y_i-\alpha -\beta x_i)(-x_i)(1+\beta^2)-(y_i-\alpha -\beta x_i)^2(2\beta)}{(1+\beta^2)^2}
+\end{align*}
+Igualando a cero tenemos que 
+\begin{align*}
+    &0=-\sum 2(y_i-\alpha -\beta x_i)(x_i)(1+\beta^2)-\sum (y_i-\alpha -\beta x_i)^2(2\beta)\\
+     &0=\sum (y_i-\alpha -\beta x_i)(x_i)(1+\beta^2)+\sum (y_i-\alpha -\beta x_i)^2(\beta) \\
+    &0= \sum (y_i - \alpha)x_i + \sum (y_i-\alpha)\beta^2x_i -  \sum \beta x_i^2 -\sum \beta^3 x_i^2 \\& \ \ \ \ \  + \sum \beta(y_i-\alpha)^2 -2 \sum (y_i-\alpha)\beta^2x_i +\sum \beta^3 x_i^2 \\
+   &0= -\sum (y_i-\alpha)x_i\beta^2 - \left(\sum x_i^2-(y_i-\alpha)^2\right) \beta +\sum (y_i - \alpha)x_i  \\
+    &0=\sum (y_i- \overline{y} + \beta \overline{x})x_i\beta^2 +  \left(\sum x_i^2-(y_i- \overline{y} + \beta \overline{x})^2\right) \beta -\sum (y_i -  \overline{y} + \beta \overline{x})x_i \\
+    &0=\sum (y_i - \overline{y})x_i \beta^2 + \sum x_i \overline{x}\beta^3 + \sum x_i^2\beta - \sum(y_i - \overline{y})^2 \beta - 2\sum (y_i-\overline{y})\overline{x}\beta^2 \\& \ \ \ \ \ - \sum \overline{x}^2 \beta^3 -\sum (y_i -  \overline{y})x_i - \sum x_i \overline{x}\beta \\
+    &0= \sum(y_i-\overline{y})(x_i-2\overline{x})\beta^2 + \sum (x_i^2-x_i\overline{x}-(y_i-\overline{y})^2) \beta - \sum (y_i -  \overline{y})x_i 
+    \end{align*}
+
+Notemos que 
+\begin{align*}
+    \sum(y_i-\overline{y})(x_i-2\overline{x}) &= \sum y_i x_i - 2 \sum y_i \overline{x} - \sum \overline{y}x_i + 2 \sum \overline{y}\cdot\overline{x} \\
+    &= \sum y_i x_i - 2n \overline{y}\cdot\overline{x} - \sum \overline{y}x_i + 2 n \overline{y}\cdot\overline{x} \\
+    &= \sum (y_i -  \overline{y})x_i
+\end{align*}
+
+Por lo tanto tenemos que 
+
+\begin{align*}
+    \beta^2 + \dfrac{ \sum (x_i^2-x_i\overline{x}-(y_i-\overline{y})^2)}{\sum (y_i -  \overline{y})x_i} \beta -1 =0 \\
+    \beta^2 + \dfrac{ \sum (x_i^2- y_i^2)-\frac{1}{n}(\sum x_i)^2+\frac{1}{n}(\sum y_i)^2}{\sum (y_ix_i) -\frac{1}{n} \sum x_i \sum y_i} \beta -1 =0 \\
+\end{align*}
+
+
+
+Claramente esto es una ecuación cuadrática.
+
+Sea $p= \frac{ \sum (x_i^2- y_i^2)-\frac{1}{n}(\sum x_i)^2+\frac{1}{n}(\sum y_i)^2}{\sum (y_ix_i) -\frac{1}{n} \sum x_i \sum y_i}$ las soluciones a la ecuación $\beta^2 + p\beta -1=0$  son 
+
+\begin{align*}
+    \hat\beta= -\frac{p}{2}  \pm \sqrt{\left(\frac{p}{2}\right)^2+1}
+\end{align*}
+
+Podemos reemplazar nuestros datos:
+
+```{r}
+n<-length(y)
+numerador<- sum(x^2-y^2)-1/n*(sum(x))^2+1/n*(sum(y))^2
+denominador<- sum(y*x) - 1/n*(sum(x)*sum(y))
+p<- numerador/denominador
+beta<- -p/2 +c(-1,1)*sqrt((p/2)^2+1)
+cat('Las soluciones para beta son:', beta)
+alpha<- mean(y)-mean(x)*beta
+cat('Las soluciones para alpha son:', alpha)
+```
+Grafiquemos la dos posibles soluciones:
+```{r}
+ggplot(data=data.frame(x,y),aes(x,y))+geom_point()+
+  geom_abline(intercept = alpha , slope=beta, color=c("blue","cyan"))
+```
+Nos quedamos con la segunda solucion
+```{r}
+c(alpha[2],beta[2])
+ggplot(data=data.frame(x,y),aes(x,y))+geom_point()+
+  geom_abline(intercept = alpha[2] , slope=beta[2], color="cyan")
+```
+
+
+
+
+# Solution 2
+Queremos encontrar los estimados de $a$ y $b$ tal que minimice la siguiente suma $$\text{RSS}=\sum_{i=1}^n \vert y_i-a-bx_i\vert$$
+  
+ Para eso vamos a utilizar el comando optim que me ayuda a minimizar la función RRS, para el comando necesitamos un punto de inicio "$par$". Un buen punto de comienzo para este conjunto de datos es:
+ 
+```{r}
+a<-0
+b<-0
+```
+
+Luego podemos definir la funcion a optimizar 
+
+```{r}
+sum.abs<-function(data,par){
+  sum(abs(y-par[1] - par[2]*x))
+}
+```
+Optimizando la funcion $sum.abs$ nos queda
+
+```{r}
+op<-optim(par=c(a,b), fn=sum.abs,data=datos)
+op
+```
+Donde los parametros $par$ son los estimados de $a$ y $b$, el $value$ es suma optimizada.
+
+Usando los parametros optimizados, graficamos la linea de regresion
+
+```{r}
+library(ggplot2)
+ggplot(data=datos, aes(x,y))+geom_point()+
+  geom_abline(intercept =op$par[1],slope = op$par[2], color="purple")
+```
+
+Si tuviéramos un outlier en nuestra data, el valor para los errores de RRS seria mas pequeño que para el MSE. Esto significa que el modelo MSE da mas peso a esos outliers que el modelo RRS. 
+
+En conclusion, si trabajamos con outliers utilizar el RRS de lo contrario utilizar MSE

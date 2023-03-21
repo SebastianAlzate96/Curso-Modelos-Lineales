@@ -1,0 +1,122 @@
+---
+title: "Tarea 1 - Modelos lineales"
+author: "Sebastian Alzate Vargas, 502200289"
+date: "01/28/2021"
+output:
+  html_document: default
+  pdf_document:
+      latex_engine: xelatex
+---
+
+# Problem 1
+Sea  $X$ una variable aleatoria con densidad $f(x)=xe^{−x^2}$, $x>0$. Encuentre la varianza de $X$.
+
+## Solución
+La varianza se define: $$Var(X) = \mathbb{E}(X^2)-[\mathbb{E}(X)]^2$$
+ahora hallemos cada una de esas esperanzas
+\begin{align*}
+    \mathbb{E}(X) = \int_{-\infty}^{\infty}xf(x)dx &= \int_{0}^{\infty}x\cdot xe^{-x^2}dx
+\end{align*}
+integrando por partes con $w=x$ y $du=xe^{-x^2}dx$ tenemos,
+    $dw=dx$ y $u=\int xe^{-x^2}dx = -\frac{1}{2}e^{-x^2}$.Entonces:
+\begin{align*}
+    \mathbb{E}(X) &= \left(-\frac{1}{2}xe^{-x^2}\right
+    )_0^{\infty} + \frac{1}{2}\int_{0}^{\infty}e^{-x^2}dx \\
+    &= 0 + \frac{1}{2}\cdot \frac{\sqrt{\pi}}{2} \\
+    &= \frac{\sqrt{\pi}}{4}
+\end{align*}
+y
+\begin{align*}
+    \mathbb{E}(X^2) = \int_{-\infty}^{\infty}x^2f(x)dx &= \int_{0}^{\infty}x^2\cdot xe^{-x^2}dx \\
+\end{align*}
+sea $u=-x^2$ entonces $du=-2xdx$ lo que es equivalente $-\frac{du}{2}=xdx$. Así
+\begin{align*}
+    \mathbb{E}(X^2) = \int_{0}^{\infty} -ue^{u}\cdot\frac{-du}{2x}= \frac{1}{2}\int_{0}^{\infty}ue^{u}du
+\end{align*}
+integrando por partes con $w=u$ y $dv=e^udu$ tenemos: $dw=du$ y $v=e^u$. Entonces
+\begin{align*}
+     \mathbb{E}\left(X^2\right) = \frac{1}{2}\int_{0}^{\infty}ue^{u}du &= \left(\frac{1}{2}ue^u\right)_0^{\infty}- \frac{1}{2}\int_{0}^{\infty}e^{u}du \\
+    &= \left(\frac{-1}{2}x^2e^{-x^2}\right)_0^{\infty}-\left(\frac{1}{2}e^{u}\right)_0^{\infty} \\
+    &= 0-\left(\frac{1}{2}e^{-x^2}\right)_0^{\infty} \\
+    &= 0 - \left(-\frac{1}{2}\right) \\
+    &= \frac{1}{2}
+\end{align*}
+por último tenemos que, $$Var(X) = \frac{1}{2}-\left(\frac{\sqrt{\pi}}{4}\right)^2 = \frac{1}{2} - \frac{\pi}{16}=\frac{8-\pi}{16} \approx 0.3035$$
+
+
+
+# Problem 2
+Sea $X∼U[0,1]$ y $Y|X=x∼U[0,x]$, $0<y<1$. Encuentre la covarianza de $X$ y $Y$.
+
+## Solución
+La covarianza se define de la siguiente manera, $$Cov(X,Y)=\mathbb{E}(XY)-\mathbb{E}(X)\mathbb{E}(Y)$$
+Primero hallemos las funciones de distribución.
+\begin{align*}
+    1&=\int_{-\infty}^{\infty}f(x)dx=\int_{0}^{1}k_1dx=k_1 \Rightarrow k_1=1\\
+    1&=\int_{-\infty}^{\infty}f(y|x)dy=\int_{0}^{x}k_2dy=k_2x \Rightarrow k_2=\frac{1}{x}
+\end{align*}
+Ahora hallemos cada uno de los valores esperados de la variable $X$
+\begin{align*}
+    \mathbb{E}(X)&=\int_{-\infty}^{\infty}xf(x)dx=\int_{0}^{1}xdx=\frac{1}{2} \\
+    \mathbb{E}(X^2)&=\int_{-\infty}^{\infty}x^2f(x)dx=\int_{0}^{1}x^2dx=\frac{1}{3}
+\end{align*}
+Valores esparados de la variable $Y$
+\begin{align*}
+    \mathbb{E}(Y|X=x)&=\int_{-\infty}^{\infty}yf(y|x)dy=\int_{0}^x y \frac{1}{x}dy=\frac{1}{x}\ \cdot\left(\frac{y^2}{2}\right)_0^x=\frac{x}{2}\\
+    \mathbb{E}(Y)&=\mathbb{E}(\mathbb{E}(Y|X=x))=\mathbb{E}\left(\frac{x}{2}\right)=\frac{1}{2}\mathbb{E}(x)=\frac{1}{2}\cdot\frac{1}{2}=\frac{1}{4} \\
+\end{align*}
+por último
+\begin{align*}
+    \mathbb{E}(XY)&=\mathbb{E}(\mathbb{E}(XY|X))=\mathbb{E}(X\cdot\mathbb{E}(Y|X))=\mathbb{E}\left(X\cdot\frac{X}{2}\right)=\frac{1}{2}\mathbb{E}\left(X^2\right)=\frac{1}{2}\cdot
+    \frac{1}{3}=\frac{1}{6}
+\end{align*}
+Así,
+\begin{align*}
+    Cov(X,Y)=\frac{1}{6}-\frac{1}{2}\cdot\frac{1}{4}=\frac{1}{6}-\frac{1}{8}=\frac{1}{24}
+\end{align*}
+
+# Problem 3
+Tenemos una muestra $X_1,..,X_n$ que son $iid$ $U[0,θ]$:
+
+0.005, 0.126, 0.582, 0.778, 1.109, 2.495, 2.610, 4.595, 7.926, 8.594
+
+a. Encuentre el mle de $θ$
+
+b. Pruebe a nivel del $5%$ si $H_0:θ=10$ vs $H_a:θ>10$ usando un test basado en mle.
+
+## Solución
+a. Como cada variable $X_i\sim U[0,\theta]$, tenemos $f(X_i|\theta) = \dfrac{1}{\theta}$, $i=1,\cdots,n$. Asi, el m.l.e de $\theta$ es: 
+\begin{align*}
+    L(\theta) &= f(X_1,\cdots,X_n|\theta) \\
+    &=f(X_1|\theta)\cdot f(X_2|\theta)\cdots f(X_n|\theta) \\
+    &= \dfrac{1}{\theta} \cdot \dfrac{1}{\theta}  \cdots  \dfrac{1}{\theta} \\
+    &= \dfrac{1}{\theta^n}
+\end{align*}
+La función $L(\theta)= \dfrac{1}{\theta^n}$ es monotona decreciente y la derivada de $L(\theta)$ con respecto a $\theta$ es diferente de cero para todo $n$. De lo cual podemos inferir que $L(\theta)$ es máximo cuando $\theta$ disminuye. Entonces el m.l.e de $\theta$ es $max(X_1, \cdots, X_n)$. \\ \\
+b. Sea $\alpha = \mathbb{P}(H_0 \ rechazada | H_0 \ verdadera)$.
+\begin{align*}
+     \frac{L(\theta_0)}{L(\theta_a)} =\frac{\dfrac{1}{(\theta_0)^n}}{\dfrac{1}{(max(X_1, \cdots, X_n))^n}} =\left( \dfrac{max(X_1, \cdots, X_n)}{\theta_0}\right)^n
+\end{align*}
+Para la region de rechazo tenemos que: $$\left( \dfrac{max(X_1, \cdots, X_n)}{\theta_0}\right)^n<R $$ lo que es equivalente a trabajar $$ \dfrac{max(X_1, \cdots, X_n)}{\theta_0} < R$$
+Luego, 
+\begin{align*}
+    \alpha &= \mathbb{P}(H_0 \ rechazada | H_0 \ verdadera) \\
+    \alpha &= \mathbb{P}\left(\dfrac{max(X_1, \cdots, X_n)}{\theta_0} < R \ | \ \theta_0\right) \\
+    \alpha &= \mathbb{P}\left(max(X_1, \cdots, X_n) < R\theta_0 \ | \ \theta_0\right) \\
+    \alpha &= \mathbb{P}(X_1< R\theta_0, X_2< R\theta_0, \cdots, X_n< R\theta_0 \ | \ \theta_0) \\
+    \alpha &= \mathbb{P}(X_1< R\theta_0 \ | \ \theta_0)^n \\
+    \alpha &= \underbrace{\left[\dfrac{1}{\theta_0} + \cdots + \dfrac{1}{\theta_0}\right]^n}_{R\theta_0-1 \ \mathrm{veces}} \\
+   \alpha &= \left[\dfrac{R\theta_0-1}{\theta_0} \right]^n\\
+   \alpha^{\frac{1}{n}} &= \dfrac{R\theta_0-1}{\theta_0} 
+\end{align*}
+Entonces
+\begin{align*}
+    R &= \dfrac{\theta_0\alpha^{\frac{1}{n}}+1}{\theta_0} \\
+   R &= \dfrac{(10)\cdot0.05^{\frac{1}{10}}+1}{10} \\
+   R &= 0.84
+\end{align*}
+Por otro lado, 
+\begin{align*}
+   \frac{max(X_1,\cdots,X_n)}{10} = \frac{8.594}{10} = 0.8594
+\end{align*}
+Asi, $\dfrac{max(X_1,\cdots,X_n)}{\theta_0} > R$, por lo cual $H_0$ no se rechaza.

@@ -1,0 +1,67 @@
+---
+title: "Final"
+author: "Sebastian Alzate Vargas"
+date: "05/08/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Solution 1
+
+a. Nuestro modelo es $$y_i=\beta_0 + \beta_1 X_i + \varepsilon_i$$ donde $\varepsilon_i \sim N(0, \sigma^2 I)$\\
+
+Queremos testear $$H_0:\beta_1=b \ \  vs \ \ H_a: \beta_1 \neq b$$
+
+Por teorema $6.1.4$ tenemos que $$E(\hat{\beta_1}) = \beta_1 \ \  \text{y} \ \ Var(\hat{\beta_1})= \frac{\sigma^2}{\sum {(x_i-\bar{x})^2}}$$ Así, tenemos que $$\hat{\beta_1} \ \sim \ N\left(\beta_1,\frac{\sigma^2}{\sum {(x_i-\bar{x})^2}}\right)$$ además sabemos que $(n-2)\frac{s^2}{\sigma^2}\sim \chi^2(n-2)$ 
+
+Entonces el estadístico de prueba es 
+
+\begin{align*}
+    t= \dfrac{\hat{\beta_1}}{s/\sqrt{\sum{(x_i-\bar{x})^2}}} \ \sim \  t(n-2,\delta)
+\end{align*}
+
+Donde $\delta$ es el parámetro de no centralidad 
+
+
+\begin{align*}
+    \delta = \dfrac{\beta_1}{\sigma/\sqrt{\sum{(x_i-\bar{x})^2}}} 
+\end{align*}
+
+Bajo la hipotesis nula $H_0: \beta_1 = b$ tenemos que $t\sim t(n-2,\delta)$, donde $$\delta = \dfrac{b}{\sigma/\sqrt{\sum{(x_i-\bar{x})^2}}}$$
+
+así la región de rechazo esta dada por 
+
+\begin{align*}
+    |t| > t_{\alpha/2,n-2,\delta}
+\end{align*}
+
+El p-value esta dado por $$p=2P(T>|t|)$$ Donde $T \sim t(n-2,\delta)$
+
+b. Primero observemos que: 
+
+\begin{align*}
+    t= \dfrac{\hat{\beta_1}-\beta_1}{s/\sqrt{\sum{(x_i-\bar{x})^2}}} \ \sim  \ t(n-2)
+\end{align*}
+
+Por lo tanto 
+
+\begin{align*}
+    1-\alpha &= P\left(-t_{\alpha/2,n-2} \leq  \dfrac{\hat{\beta_1}-\beta_1}{\frac{s}{\sqrt{\sum{(x_i-\bar{x})^2}}}} \leq  t_{\alpha/2,n-2}  \right) \\
+     1-\alpha &= P\left( -t_{\alpha/2,n-2}\frac{s}{\sqrt{\sum{(x_i-\bar{x})^2}}} \leq \hat{\beta_1}-\beta_1 \leq t_{\alpha/2,n-2}\frac{s}{\sqrt{\sum{(x_i-\bar{x})^2}}} \right)\\
+    1-\alpha &= P\left( \hat{\beta_1} -t_{\alpha/2,n-2}\frac{s}{\sqrt{\sum{(x_i-\bar{x})^2}}} \leq \beta_1 \leq \hat{\beta_1} + t_{\alpha/2,n-2}\frac{s}{\sqrt{\sum{(x_i-\bar{x})^2}}} \right)
+\end{align*}
+
+
+Por lo tanto un intervalo de confianza del $(1-\alpha)100\%$
+
+\begin{align*}
+    \left(\hat{\beta_1} -t_{\alpha/2,n-2}\frac{s}{\sqrt{\sum{(x_i-\bar{x})^2}}}\ \ \ , \ \ \hat{\beta_1} + t_{\alpha/2,n-2}\frac{s}{\sqrt{\sum{(x_i-\bar{x})^2}}}\right)
+\end{align*}
+
+
+# Solution 2
+
+# Solution 3
+
+# Solution 4

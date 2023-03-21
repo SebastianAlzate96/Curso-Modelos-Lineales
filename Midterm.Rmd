@@ -1,0 +1,391 @@
+---
+title: "Midterm"
+author: "Sebastian Alzate Vargas"
+date: "03/13/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Solucion 1
+
+Por hipótesis tenemos que: $X\sim N(1,1)$, $Y\sim N(2,1)$ y $Z\sim N(3,1)$
+
+Ahora definamos la siguiente variable 
+\begin{align*}
+    W=\dfrac{X+Z}{\sqrt{2}}\sim N\left(\frac{4}{\sqrt{2}},1\right)
+\end{align*}
+
+Pues, 
+$$var(W)=\frac{1}{2}var(X+Z)=\frac{2}{2}=1$$ y $$E(W)=\frac{1}{\sqrt{2}}(E(X)+E(Z))=\frac{4}{\sqrt{2}}$$
+
+Sea $A=\begin{pmatrix}
+1 & 0 \\ 0 & 1
+\end{pmatrix}$, donde $A$ es una matriz simétrica e idepontente de rango 2.  Podemos observar que:
+
+\begin{align*}
+\begin{pmatrix}
+    W & Y
+    \end{pmatrix}
+     A
+    \begin{pmatrix}
+    W \\ Y
+    \end{pmatrix}=
+    \begin{pmatrix}
+    W & Y
+    \end{pmatrix}
+     \begin{pmatrix}
+    1 & 0 \\ 0 & 1
+    \end{pmatrix}
+    \begin{pmatrix}
+    W \\ Y
+    \end{pmatrix}=W^2+Y^2
+\end{align*}
+
+Por otro lado,
+
+\begin{align*}
+    \begin{pmatrix}
+    W \\ Y
+    \end{pmatrix} \sim N_2\left(
+    \begin{pmatrix}
+    4/\sqrt{2} \\ 2
+    \end{pmatrix},
+    1\begin{pmatrix}
+    1 & 0 \\ 0 & 1
+    \end{pmatrix}\right)
+\end{align*}
+
+Como lo anterior cumple las hipótesis del corolario 5.5.3 parte b, podemos afrimar que
+
+\begin{align*}
+     \begin{pmatrix}
+    W & Y
+    \end{pmatrix}
+     A
+    \begin{pmatrix}
+    W \\ y
+    \end{pmatrix}/\sigma^2 &\sim \chi^2 \left(2, 
+     \begin{pmatrix}
+    4/\sqrt{2} & 2
+    \end{pmatrix}
+     \begin{pmatrix}
+    1 & 0 \\ 0 & 1
+    \end{pmatrix}
+    \begin{pmatrix}
+    4/\sqrt{2} \\ 2
+    \end{pmatrix}/2\sigma^2
+    \right)
+     \\ \\
+W^2+Y^2 &\sim \chi^2\left(2,12/2 \right)
+\end{align*}
+
+para buscar el parámetro de no centralidad en Rstudio, tenemos que hacer lo siguiente $NCP=2\cdot\frac{12}{2}$
+
+Así, 
+
+\begin{align*}
+   P\left(\left(\dfrac{X+Z}{\sqrt{2}}\right)^2+Y^2<10\right)= P(W^2+Y^2<10)=pchisq(10,2,NCP=12)
+\end{align*}
+
+```{R}
+pchisq(10, 1, ncp = 12, lower.tail = TRUE)
+```
+# Solución 2
+Nuestro modelo es $y=X\beta+\varepsilon$, con $\varepsilon \sim N(0,\sigma^2)$
+
+Necesitamos separar los datos, la columna de variable de respuesta y la columnas de las predictoras. Se hace a continuación
+
+
+```{R}
+load("C:/Users/sebas/Downloads/Resma3 (1).RData")
+datos<-as.matrix(highways)
+y<-datos[,1,drop=F]
+X<-cbind(1,datos[,-1])
+```
+
+a. Para hallar el vector de beta estimado vamos a usar la siguiente formula $\hat\beta=(X'X)^{-1}X'y$, de los minimos cuadrados
+
+```{R}
+Bhat<-solve(t(X)%*%X)%*%t(X)%*%y
+Bhat[-1]
+```
+
+b. Para hallar $R^2$, vamos a usar lo siguiente $\text{SSE}=y'y-\hat\beta'  X'y$ y $\text{SSR}=\sum(y_i-\hat y_i)$. Por tanto $R^2=\frac{\text{SSE}}{\text{SSR}+\text{SSE}}$
+
+```{r}
+SSE<-t(y)%*%y-t(Bhat)%*%t(X)%*%y
+SSR<-t(X%*%Bhat-matrix(mean(y),length(y),1))%*%
+  (X%*%Bhat-matrix(mean(y),length(y),1))
+R2<- SSR/(SSR+SSE)
+R2
+```
+
+c. Y un estimado de sigma al cuadrado es: $S^2=\frac{\text{SSE}}{n-k-1}$, donde $n=39, k=13$. Asi
+
+```{r}
+s2<-SSE/(39-13-1)
+s2
+```
+
+d. Queremos una prueba al nivel del $5\%$ de
+$$H_0:\beta_2=0\text{ vs }H_a:\beta_2\ne 0$$
+Donde $\hat\beta_2$ son los estimadores de las 8 predictoras que tienen menor correlacion con $y$
+
+Necesitamos ver que variables tienen correlacion cerca a cero, para eso vamos hacer los siguiente:
+```{r}
+cor(highways,y)
+```
+Por tanto las 8 predictoras con menos correlación son los que estan en la posición $3,6,7,8,11,12,13,14$. Por tanto, las matriz con esas predictoras es $x2$ y las faltantes $x1$
+
+```{R}
+B2<-(Bhat[c(3,6,7,8,11,12,13,14)])
+B1<-(Bhat[c(1,2,4,5,9,10)])
+x2<-X[,c(3,6,7,8,11,12,13,14)]
+x1<-X[,c(1,2,4,5,9,10)]
+```
+ El estadistico esta dado por: 
+
+$$F=\frac{\pmb{y'(H-H_1)y}/h}{\pmb{y'(I-H)y}/(n-k-1)}$$
+
+Ahora podemos encontrar la matriz $\pmb{H}$ y $\pmb{H_1}$ que viene dadas por: 
+\begin{align*}
+    \pmb{H}=\pmb{X}(\pmb{X}'\pmb{X})^{-1}\pmb{X}' \\
+    \pmb{H}_1=\pmb{X}_1(\pmb{X}_1'\pmb{X}_1)^{-1}\pmb{X}_1'
+\end{align*}
+
+```{R}
+H<-X%*%solve(t(X)%*%X)%*%t(X)
+H1<-x1%*%solve(t(x1)%*%x1)%*%t(x1)
+h<-ncol(x2)
+num<-(t(y)%*%(H-H1)%*%y)/h
+den<-t(y)%*%(diag(nrow(H))-H)%*%y/(39-13-1)
+F<-num/den
+c(F,qf(0.05,8,39-13-1,lower.tail = TRUE),qf(1-0.05,8,39-13-1,lower.tail = TRUE))
+```
+
+Asi, la prueba nos indica de NO rechazar la hipotesis nula
+
+# Solución 3
+
+a. Nuestro modelo es: $y =X \beta + \varepsilon$, con $E[y]=yX\beta\text{, }cov(y)=\sigma^2V$
+
+Donde $V$ es definida positiva, entonces existe $K$ no singular tal que $V=KK'$
+
+
+Veamos el siguiente resultado: $(X')^{-1}=(X^{-1})'$
+
+Prueba:
+
+\begin{align*}
+    (X^{-1})'X'= (XX^{-1})'=I \\
+    X'(X^{-1})'= (X^{-1}X)'=I \\
+\end{align*}
+
+Entonces,
+\begin{align*}
+    K^{-1}y &= K^{-1}(X\beta + \varepsilon) \\
+    &= K^{-1}X \beta + K^{-1} \varepsilon
+\end{align*}
+
+Donde, 
+
+\begin{align*}
+    E(K^{-1}\varepsilon)&=0 \ \ \text{y}\\
+    Cov(K^{-1}\varepsilon) &= K^{-1}Cov(\varepsilon) (K^{-1})' \\ 
+    &= K^{-1}\sigma^2V(K^{-1})' \\
+    &=\sigma^2K^{-1}KK'(K^{-1})' \\
+    &= \sigma^2 I
+\end{align*}
+ 
+Por teorema 6.2.8, los estimadores para el modelo $K^{-1}y= K^{-1}(X\beta + \varepsilon)$ son 
+
+\begin{align*}
+    \hat\beta &= \left((K^{-1}X)'(K^{-1}X) \right)^{-1}\left((K^{-1}X)'(K^{-1}y) \right) \\ 
+    &= \left(X'(K^{-1})'K^{-1}X \right)^{-1}\left(X'(K^{-1})'K^{-1}y \right) \\  
+    &= \left(X'(K')^{-1}K^{-1}X \right)^{-1}\left(X'(K')^{-1}K^{-1}y \right) \\ 
+    &= \left(X'(KK')^{-1}X \right)^{-1}\left(X'(KK')^{-1}y \right) \\
+    &= \left(X'V^{-1}X \right)^{-1}\left(X'V^{-1}y \right) \\
+\end{align*}
+
+b. utilizando el teorema 6.2.8, los estimadores para el modelo $K^{-1}y= K^{-1}(X\beta + \varepsilon)$ son 
+
+\begin{align*}
+    \hat\beta &= \left((K^{-1}X)'(K^{-1}X) \right)^{-1}\left((K^{-1}X)'(K^{-1}y) \right) \\ 
+    &= \left(X'(K^{-1})'K^{-1}X \right)^{-1}\left(X'(K^{-1})'K^{-1}y \right) \\  
+    &= \left(X'(K')^{-1}K^{-1}X \right)^{-1}\left(X'(K')^{-1}K^{-1}y \right) \\ 
+    &= \left(X'(KK')^{-1}X \right)^{-1}\left(X'(KK')^{-1}y \right) \\
+    &= \left(X'V^{-1}X \right)^{-1}\left(X'V^{-1}y \right) \\
+\end{align*}
+
+c. \begin{align*}
+    (n-k-1)E(\hat s^2) &=E((y-X\hat \beta)'V^{-1}(y-X\hat \beta)) \\
+    &=E((y' - \hat\beta' X') V^{-1} (y-X\hat \beta))\\
+    &=E(y'V^{-1}y - y'V^{-1}X\hat\beta - \hat\beta'X'V^{-1}y + \hat\beta'X'V^{-1}X\hat\beta)\\
+    &=E (y'V^{-1}y - y'V^{-1}X\hat\beta) \\
+    &= E\left(y'V^{-1}y - y'V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1}y \right)\right) \\ 
+    &= E\left(y'\left(V^{-1} -V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1} \right)\right)y\right)
+\end{align*}
+
+Pues
+
+\begin{align*}
+    E(- \hat\beta'X'V^{-1}y + \hat\beta'X'V^{-1}X\hat\beta)&= -E(\hat\beta'X'V^{-1}y ) + E( \hat\beta'X'V^{-1}X\hat\beta) \\
+    &= - \hat\beta'X'V^{-1}X\hat\beta + \hat\beta'X'V^{-1}X\hat\beta \\
+    &= 0
+\end{align*}
+
+
+Por teorema 5.3.3 con $\Sigma=\sigma^2V$ y $\mu=X\beta$ tenemos que 
+
+\begin{align*}
+    (n-k-1)E(\hat s^2) &= tra\left(\left(V^{-1} -V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1} \right)\right)\Sigma\right) \\ &+  \mu'\left(V^{-1} -V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1} \right)\right)\mu
+\end{align*}
+
+Note que 
+
+\begin{align*}
+    &\mu'\left(V^{-1} -V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1} \right)\right)\mu \\
+    &= (\beta' X')\left(V^{-1} -V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1} \right)\right)X\beta \\
+    &= (\beta' X')\left(V^{-1} -V^{-1}XX^{-1}V(X')^{-1}\left(X'V^{-1} 
+    \right)\right)X\beta \\
+    &= (\beta' X')(V^{-1} - V^{-1})X\beta  \\
+    &=0
+\end{align*}
+
+Por lo tanto 
+
+\begin{align*}
+    (n-k-1)E(\hat s^2) &= tra\left(\left(V^{-1} -V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1} \right)\right)\Sigma\right) \\
+    &=tra\left(\left(V^{-1} -V^{-1}X\left(X'V^{-1}X \right)^{-1}\left(X'V^{-1} \right)\right)\sigma^2 V\right) \\
+    &= \sigma^2 tra\left(I_n-V^{-1}X\left(X'V^{-1}X \right)^{-1}X'\right) \\
+    &=\sigma^2 tra\left(I_n\right) - \sigma^2tra\left(V^{-1}X\left(X'V^{-1}X \right)^{-1}X'\right) \\
+    &= \sigma^2n - \sigma^2tra(X'(X')^{-1}) \\
+    &= \sigma^2n - \sigma^2tra(I_{k+1}) \\
+    &= \sigma^2(n-k-1)
+\end{align*}
+
+Asi, $E(\hat s^2)=\sigma^2$
+
+# Solución 4
+
+a. Nuestro modelo es $$y_i=\alpha x_i+\beta z_i + \varepsilon_i$$
+por mínimos cuadrados, 
+\begin{align*}
+    R(\hat\alpha,\hat\beta)=\sum_{i=1}^n \left(y_i - \hat{y}_i \right)^2=\sum_{i=1}^n \left(y_i - \hat{\alpha}x_i-\hat{\beta}z_i \right)^2
+\end{align*}
+
+Derivando con respecto $\alpha$ e igualando a cero
+\begin{align*}
+    0=\dfrac{\partial R(\alpha,\beta)}{\partial \alpha}&=(-2)\sum_{i=1}^n \left(y_i - \alpha x_i-\beta z_i \right)(x_i)\\
+    &=(-2)\left(\sum_{i=1}^n y_ix_i-\alpha\sum_{i=1}^n x_i^2-\beta\sum_{i=1}^n z_ix_i\right)\\
+    &=(-2n)\left(\overline{XY}-\alpha\overline{X^2}-\beta\overline{ZX} \right)
+\end{align*}
+Asi
+\begin{align*}
+    \overline{XY}&=\alpha\overline{X^2}+\beta\overline{ZX}\\
+    \alpha&=\dfrac{ \overline{XY}-\beta\overline{ZX}}{\overline{X^2}}
+\end{align*}
+
+
+Derivando con respecto $\beta$ e igualando a cero
+\begin{align*}
+    0=\dfrac{\partial R(\alpha,\beta)}{\partial \beta}&=(-2)\sum_{i=1}^n \left(y_i - \alpha x_i-\beta z_i \right)(z_i)\\
+    &=(-2)\left(\sum_{i=1}^n y_iz_i-\alpha\sum_{i=1}^n x_iz_i-\beta\sum_{i=1}^n z_i^2\right)\\
+    &=(-2n)\left(\overline{ZY}-\alpha\overline{XZ}-\beta\overline{Z^2} \right)
+\end{align*}
+Asi
+\begin{align*}
+    \overline{ZY}&=\alpha\overline{XZ}+\beta\overline{Z^2}
+\end{align*}
+
+Reemplazando $\alpha$
+
+\begin{align*}
+    \overline{ZY}&=\left(\dfrac{ \overline{XY}-\beta\overline{ZX}}{\overline{X^2}} \right)\overline{XZ}+\beta\overline{Z^2}\\
+    \overline{ZY}&=\dfrac{\overline{XY}\cdot\overline{ZX}}{\overline{X^2}}-\beta\left(\overline{Z^2}-\dfrac{\overline{XZ}^2}{\overline{X^2}} \right)\\
+    \beta\left(\overline{Z^2}-\dfrac{\overline{XZ}^2}{\overline{X^2}} \right)&=\overline{ZY}-\dfrac{\overline{XY}\cdot\overline{ZX}}{\overline{X^2}}\\
+    \beta\left(\overline{Z^2} \cdot \overline{X^2}-\overline{XZ}^2 \right)&=\overline{ZY}\cdot\overline{X^2}-\overline{XY}\cdot\overline{ZX}\\
+    \hat\beta&=\dfrac{\overline{ZY}\cdot\overline{X^2}-\overline{XY}\cdot\overline{ZX}}{\overline{Z^2} \cdot \overline{X^2}-\overline{XZ}^2}
+\end{align*}
+
+Reemplazando $\hat\beta$ en la ecuacion de $\alpha$ obtenemos
+\begin{align*}
+    \hat\alpha&=\dfrac{\overline{YX}}{\overline{X^2}}-\hat{\beta}\dfrac{\overline{ZX}}{\overline{X^2}}\\
+    \hat\alpha&=\dfrac{\overline{YX}}{\overline{X^2}}-\left(\dfrac{\overline{ZY}\cdot\overline{X^2}-\overline{XY}\cdot\overline{ZX}}{\overline{Z^2} \cdot \overline{X^2}-\overline{XZ}^2} \right)\dfrac{\overline{ZX}}{\overline{X^2}}\\
+    \hat\alpha&=\dfrac{\overline{YX}\left(\overline{X^2}\cdot\overline{Z^2}-\overline{XZ}^2\right)-\left(\overline{X^2}\cdot\overline{YZ} -\overline{YX}\cdot\overline{XZ}\right)\overline{ZX}}{\overline{X^2}\left( \overline{X^2}\cdot\overline{Z^2}-\overline{XZ}^2 \right)}\\
+    \hat\alpha&=\dfrac{\overline{YX}\cdot\overline{Z^2}-\overline{ZX}\cdot\overline{YZ}}{\overline{X^2}\cdot\overline{Z^2}-\overline{XZ}^2}
+\end{align*}
+
+b. Por el teorema de regresion multiple nos dice que $\hat\beta = (X'X)^{-1} X'y$
+Definamos $X=\begin{pmatrix} 
+    x_1 & z_1 \\
+    x_2 & z_2 \\
+    \vdots & \vdots \\
+    x_n & z_n  \\
+    \end{pmatrix}$
+\begin{align*}
+    \hat \beta &= (X'X)^{-1}X'y \\ 
+    &=\left( \begin{pmatrix}
+    x_1 & x_2 & \cdots & x_n \\
+     z_1 & z_2 & \cdots & z_n \\
+    \end{pmatrix} \begin{pmatrix} 
+    x_1 & z_1 \\
+    x_2 & z_2 \\
+    \vdots & \vdots \\
+    x_n & z_n  \\
+    \end{pmatrix}\right)^{-1} \begin{pmatrix}
+    x_1 & x_2 & \cdots & x_n \\
+     z_1 & z_2 & \cdots & z_n \\
+    \end{pmatrix}  \begin{pmatrix} 
+    y_1 \\
+    y_2 \\
+    \vdots  \\
+    y_n  \\
+    \end{pmatrix} \\
+    &= \begin{pmatrix}
+    \sum x_i^2  & \sum x_i z_i \\
+     \sum x_i z_i &\sum z_i^2  \\
+    \end{pmatrix}^{-1} \begin{pmatrix} \sum x_i y_i \\ \sum z_i y_i \end{pmatrix}  \\ 
+    &= \dfrac{1}{ \sum x_i^2  \sum z_i^2 - \left(\sum x_i z_i\right)^2 }\begin{pmatrix}
+    \sum z_i^2  & -\sum x_i z_i \\
+     -\sum x_i z_i &\sum x_i^2  \\
+    \end{pmatrix} \begin{pmatrix} \sum x_i y_i \\ \sum z_i y_i \end{pmatrix} \\  \\
+    &= \dfrac{1}{ \sum x_i^2  \sum z_i^2 - \left(\sum x_i z_i\right)^2 } \begin{pmatrix}
+    \sum z_i^2 \sum x_i y_i  -\sum x_i z_i \sum z_i y_i \\ 
+     -\sum x_i z_i\sum x_i y_i + \sum x_i^2 \sum z_i y_i \\
+    \end{pmatrix}
+\end{align*}
+
+asi,
+
+\begin{align*}
+    \hat\alpha&=\dfrac{\sum_{i=1}^n{y_ix_i}\cdot\sum_{i=1}^n{z_i^2}-\sum_{i=1}^n{z_ix_i}\cdot\sum_{i=1}^n{y_iz_i}}{\sum_{i=1}^n{x_i^2}\cdot\sum_{i=1}^n{z_i^2}-\left(\sum_{i=1}^n{x_iz_i}\right)^2}\\
+    \hat\alpha&=\dfrac{\overline{YX}\cdot\overline{Z^2}-\overline{ZX}\cdot\overline{YZ}}{\overline{X^2}\cdot\overline{Z^2}-\overline{XZ}^2}
+\end{align*}
+
+Y 
+
+\begin{align*}
+    \hat\beta&=\dfrac{\sum_{i=1}^n{z_iy_i}\cdot\sum_{i=1}^n{x_i^2}-\sum_{i=1}^n{x_iy_i}\cdot\sum_{i=1}^n{z_ix_i}}{\sum_{i=1}^n{z_i^2} \cdot \sum_{i=1}^n{x_i^2}-\left(\sum_{i=1}^n{x_iz_i}\right)^2}\\
+    \hat\beta&=\dfrac{\overline{ZY}\cdot\overline{X^2}-\overline{XY}\cdot\overline{ZX}}{\overline{Z^2} \cdot \overline{X^2}-\overline{XZ}^2}
+\end{align*}
+
+c. Supongamos que algunas de las variables predictoras es un vector de constantes. 
+
+Sin perdida de generalidad, sea $x_i=k$ para todo $i$, entonces el modelo se reduce a 
+
+$y_i=\alpha k+\beta z_i+\varepsilon_i$ 
+
+el cual es un modelo de regresión simple con en intercepto en $\alpha k$. utilizando los estimadores de la parte a) tenemos
+
+\begin{align*}\hat\beta&=\dfrac{\overline{ZY}\cdot\overline{X^2}-\overline{XY}\cdot\overline{ZX}}{\overline{Z^2} \cdot \overline{X^2}-\overline{XZ}^2}\\
+    \hat\beta&=\dfrac{\sum_{i=1}^n{z_iy_i}\cdot nk^2-k^2\sum_{i=1}^n{y_i}\cdot\sum_{i=1}^n{z_i}}{\sum_{i=1}^n{z_i^2} \cdot nk^2-k^2\left(\sum_{i=1}^n{z_i}\right)^2}\\
+    \hat\beta&=\dfrac{n\sum_{i=1}^n{z_iy_i} -\sum_{i=1}^n{y_i}\cdot\sum_{i=1}^n{z_i}}{n\sum_{i=1}^n{z_i^2}-\left(\sum_{i=1}^n{z_i}\right)^2}\\
+\end{align*}
+
+\begin{align*}
+\hat\alpha&=\dfrac{\overline{YX}\cdot\overline{Z^2}-\overline{ZX}\cdot\overline{YZ}}{\overline{X^2}\cdot\overline{Z^2}-\overline{XZ}^2}\\
+    \hat\alpha&=\dfrac{k\sum_{i=1}^n{y_i}\cdot\sum_{i=1}^n{z_i^2}-k\sum_{i=1}^n{z_i}\cdot\sum_{i=1}^n{y_iz_i}}{nk^2\cdot\sum_{i=1}^n{z_i^2}-k^2\left(\sum_{i=1}^n{z_i}\right)^2}\\
+    \hat\alpha&=\dfrac{\sum_{i=1}^n{y_i}\cdot\sum_{i=1}^n{z_i^2}-\sum_{i=1}^n{z_i}\cdot\sum_{i=1}^n{y_iz_i}}{nk\cdot\sum_{i=1}^n{z_i^2}-k\left(\sum_{i=1}^n{z_i}\right)^2}
+\end{align*}

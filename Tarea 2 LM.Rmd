@@ -1,0 +1,415 @@
+---
+title: "Tarea 2 ML"
+author: "Sebastian Alzate Vargas"
+date: "Febrero 04/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Problema 1
+Sea 
+\begin{align*}
+\pmb{A} =
+\begin{pmatrix}
+a  &  b  \\
+c  &  d
+\end{pmatrix}
+\end{align*}
+Demuestre que $\left(\pmb{A}^{-1}\right)^{-1}=\pmb{A}$
+
+## Solución 1
+\begin{equation*}
+   A= \begin{pmatrix}
+a  &  b \\
+c  &  d \\
+      \end{pmatrix}
+\end{equation*}
+Por teorema 4.2.3
+\begin{align*}
+    A^{-1} &=
+\frac1{ad-bc}
+\begin{pmatrix}
+d  &  -b \\
+-c  &  a \\
+\end{pmatrix} \\
+\left(A^{-1}\right)^{-1} &=
+\left(\frac1{ad-bc}
+\begin{pmatrix}
+d  &  -b \\
+-c  &  a \\
+\end{pmatrix}\right)^{-1}\\
+\left(A^{-1}\right)^{-1} &=
+\left(ad-bc\right)
+\begin{pmatrix}
+d  &  -b \\
+-c  &  a \\
+\end{pmatrix}^{-1}
+\end{align*}
+aplicando nuevamente el teorema 4.2.3, tenemos que:
+\begin{align*}
+ \left(A^{-1}\right)^{-1} &=\dfrac{\left(ad-bc\right)}{\left(da-cb\right)}
+\begin{pmatrix}
+a  &  b \\
+c  &  d \\
+\end{pmatrix}=\begin{pmatrix}
+a  &  b \\
+c  &  d \\
+\end{pmatrix}=A
+\end{align*}
+Por lo cual queda demostrado que $\left(A^{-1}\right)^{-1}=A$
+
+
+# Problema 2
+Muestre que para cualquier matriz cuadrada $\pmb{A}$ de $n\times n$ se puede escribir en su forma cuadrática como
+\begin{align*}
+\pmb{y'Ay}=\pmb{y'}\left(\frac{\pmb{A}+\pmb{A'}}{2}\right)\pmb{y}
+\end{align*}
+
+## Solución 2
+\begin{align*}
+    y'\left[\frac{A+A'}{2}\right]y&=\frac{1}{2}y'Ay +\frac{1}{2}y'A'y  \\
+    &= \frac{1}{2}y'Ay +\frac{1}{2}y'A'y
+\end{align*}
+$y'A'y$ es un escalar ya que tiene dimensión $1\times1$, sabemos que la traspuesta de un escalar es el mismo escalar. Entonces
+\begin{align*}
+   y'A'y &= \left(y'A'y \right)' \\
+   &= (A'y)'(y')'\\
+   &= y'Ay
+\end{align*}
+así,
+\begin{align*}
+    y'\left[\frac{A+A'}{2}\right]y&=\frac{1}{2}y'Ay +\frac{1}{2}y'Ay  \\
+    &= y'Ay
+\end{align*}
+
+# Problema 3
+Sea
+\begin{align*}
+\pmb{A} =
+\begin{pmatrix}
+a  &  b \\
+c  &  d
+\end{pmatrix}
+\end{align*}
+Muestre que $\vert\pmb{A}^2\vert=\vert\pmb{A}\vert^2$
+
+## Solución 3
+Por teorema 4.2.18 tenemos que $|A| = ad-bc$ entonces 
+\begin{align*}
+    |A|^2 &= (ad-bc)^2\\
+    &= (ad)^2-2adbc+(cb)^2
+\end{align*}
+Por otro lado, tenemos que:
+\begin{align*}
+    A^2 &= A\cdot A \\
+    &= \begin{pmatrix}
+a  &  b \\
+c  &  d \\
+      \end{pmatrix}  
+     \begin{pmatrix}
+a  &  b \\
+c  &  d \\
+      \end{pmatrix} \\
+      &= \begin{pmatrix}
+a^2+cb  &  ab+bd \\
+ca+dc  &  cb+d^2 \\
+      \end{pmatrix}
+\end{align*}
+Entonces, 
+\begin{align*}
+    |A^2| &= (a^2+cb)(cb+d^2)-(ca+dc)(ab+bd) \\
+    &= a^2cb + (ad)^2 + (cb)^2 + cbd^2 - a^2cb - cabd - dcab - d^2cb \\
+    &= (ad)^2-2adbc+(cb)^2 \\
+    & = |A|^2
+\end{align*}
+
+# Problema 4
+Encuetre todas las soluciones del siguiente sistema de ecuaciones
+\begin{align*}
+2x+3y-z    &=1 \\
+x-y    &= 1
+\end{align*}
+
+a. Directamente
+
+b. Usando el teorema 4.2.16
+
+## Solución 4
+
+a.
+
+\begin{align}
+    2x + 3y -z =1 \\ 
+    x-y = 1
+\end{align}
+De $(2)$ tenemos que $x=y+1$. Reemplazando $x$ en $(1)$ obtenemos, 
+\begin{align*}
+   2(y+1) + 3y -z &=1 \\  
+   2y+2 + 3y -z &=1 \\
+   5y&=z-1\\
+   y&=\frac{z-1}{5}
+\end{align*}
+reemplazando $y$
+\begin{align*}
+    x&=y+1\\
+   x &=\frac{z-1}{5}+1\\
+   x &=\frac{z+4}{5}
+\end{align*}
+
+Así, las soluciones del sistemas son $x=\frac{z+4}{5}$ y $y=\frac{z-1}{5}$. Donde $z$ puede tomar cualquier valor real.
+
+b. La matriz asociada al sistema es 
+\begin{align*}
+   A= \begin{pmatrix}
+2 &  3 & -1\\
+1 & -1 & 0\\
+\end{pmatrix}
+\end{align*}
+Como las columnas son independientes, entonces el rango de esa matriz es 2. Consideremos la siguiente matriz: 
+\begin{align*}
+\begin{pmatrix}
+2 & 3   \\
+1 & -1
+\end{pmatrix} 
+\end{align*}
+Hallemos su inversa. La cual es
+\begin{align*}
+-\frac{1}{5}\cdot \begin{pmatrix}
+-1&-3\\ 
+-1&2
+\end{pmatrix}=\begin{pmatrix}
+\frac{1}{5}&\frac{3}{5}\\ 
+\frac{1}{5}&-\frac{2}{5}
+\end{pmatrix}
+\end{align*}
+Por tanto la inversa generalizada es:
+\begin{align*}
+\begin{pmatrix}
+\frac{1}{5}&\frac{3}{5}\\ 
+\frac{1}{5}&-\frac{2}{5} \\ 
+0&0 \\
+\end{pmatrix}
+\end{align*}
+Veriquemos que $AA^-A=A$
+```{r ,}
+A=rbind(c(2, 3, -1), c(1, -1, 0))
+w=solve(cbind(c(2,1),c(3,-1)))
+y= rbind(w, c(0, 0))
+round(A %*% y %*% A,1) == A
+```
+
+Finalmente todas las soluciones estan dadas por 
+\begin{align*}
+&A^{-}c+(I-A^{-}A)h\\ \\
+=&\begin{pmatrix}
+\frac{1}{5}&\frac{3}{5}\\ 
+\frac{1}{5}&-\frac{2}{5} \\ 
+0&0 \\
+\end{pmatrix}
+\begin{pmatrix}
+1  \\
+1  \\
+\end{pmatrix}
++\left[
+\begin{pmatrix}
+1  &  0 &0\\
+0  &  1 &0\\
+0 & 0 & 1
+\end{pmatrix}-
+\begin{pmatrix}
+\frac{1}{5}&\frac{3}{5}\\ 
+\frac{1}{5}&-\frac{2}{5} \\ 
+0&0 \\
+\end{pmatrix}
+\begin{pmatrix}
+2 &  3 & -1\\
+1 & -1 & 0\\
+\end{pmatrix}
+\right]
+\begin{pmatrix}
+h_1\\
+h_2 \\
+h_3\\
+\end{pmatrix}\\
+=&\begin{pmatrix}
+\frac{4}{5}\\ 
+-\frac{1}{5}\\ 
+0
+\end{pmatrix}
++\left[
+\begin{pmatrix}
+1  &  0 &0\\
+0  &  1 &0\\
+0 & 0 & 1
+\end{pmatrix}-
+\begin{pmatrix}
+1 & 0 &-\frac{1}{5}\\
+0 & 1 &-\frac{1}{5}\\ 
+0 & 0 & 0
+\end{pmatrix}
+\right]
+\begin{pmatrix}
+h_1\\
+h_2\\
+h_3
+\end{pmatrix} \\
+=&\begin{pmatrix}
+\frac{4}{5}\\ 
+-\frac{1}{5}\\ 
+0
+\end{pmatrix}+
+\begin{pmatrix}
+0 & 0 &\frac{1}{5}\\
+0 & 0 &\frac{1}{5}\\ 
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix}
+h_1\\
+h_2\\
+h_3\\
+\end{pmatrix} \\
+=&\begin{pmatrix}
+\frac{4}{5}+\frac{1}{5} h_3\\
+-\frac{1}{5}+\frac{1}{5}h_3\\
+h_3
+\end{pmatrix} 
+\end{align*}
+Así, las soluciones del sistema son $h_1=\frac{h_3+4}{5}$ y $h_2=\frac{h_3-1}{5}$. Donde $h_3$ puede tomar cualquier valor real.
+
+Podemos concluir que las dos soluciones son las mismas (directamente y por el teorema 4.2.16)
+
+# Problema 5
+Sea 
+\begin{align*}
+\pmb{A} =
+\begin{pmatrix}
+\frac12  &  -\frac14  \\
+-\frac14  &  \frac12
+\end{pmatrix}
+\end{align*}
+
+Encuentre $\log(1+\pmb{A})$
+
+## Solución 5
+Sea
+\begin{equation*}
+  A= \begin{pmatrix}
+\frac{1}{2} & -\frac{1}{4} \\
+-\frac{1}{4} & \frac{1}{2} 
+\end{pmatrix}
+\end{equation*} como $A$ es una matriz no singular. Podemos usar la descomposición espectral II. Para ello necesitamos los autovalores y autovectores propios.
+
+Hallemos primero los autovalores: 
+\begin{align*}
+    |A-\lambda I|&=\begin{vmatrix}
+\frac{1}{2}-\lambda & -\frac{1}{4} \\
+-\frac{1}{4} & \frac{1}{2} -\lambda
+\end{vmatrix} \\
+&= \left(\frac{1}{2}-\lambda \right)^2-\dfrac{1}{16}\\
+&= \frac{1}{4}-\lambda+\lambda^2-\frac{1}{16}\\
+&=\lambda^2-\lambda+\dfrac{3}{16}\\
+&=16\lambda^2-16\lambda+3=0
+\end{align*}
+Luego,
+\begin{align*}
+    \lambda&=\dfrac{-(-16)\pm \sqrt{(-16)^2-4(16)(3)}}{16\cdot2}\\
+    &= \dfrac{16\pm \sqrt{256-192}}{32}\\
+    &= \dfrac{16\pm 8}{32}\\
+     &= \dfrac{2\pm 1}{4}\\
+\end{align*}
+Así, $\lambda_1=\frac{1}{4}$ y $\lambda_2=\frac{3}{4}$
+ 
+autovectores:
+\begin{align*}
+    (A-\lambda_1I)X&=0 \\
+\begin{pmatrix}
+\frac{1}{2}-\frac{1}{4} & -\frac{1}{4} \\
+-\frac{1}{4} & \frac{1}{2}-\frac{1}{4}
+\end{pmatrix} 
+\begin{pmatrix}
+x_1 \\ x_2
+\end{pmatrix}&=0 \\ \\
+\begin{pmatrix}
+\frac{1}{4} & -\frac{1}{4} \\
+-\frac{1}{4} & \frac{1}{4}
+\end{pmatrix} 
+\begin{pmatrix}
+x_1 \\ x_2
+\end{pmatrix}&=0
+\end{align*}
+Así, $\frac{1}{4}x_1-\frac{1}{4}x_2=0$ entonces $x_1=x_2$. si $x_1=1$ entonces $x_2=1$. El vector $v_1=(1,1)'$ normalizado es igual a : $\left(\frac{1}{\sqrt2},\frac{1}{\sqrt2}\right)'$.
+
+\begin{align*}
+    (A-\lambda_2I)X&=0 \\
+\begin{pmatrix}
+\frac{1}{2}-\frac{3}{4} & -\frac{1}{4} \\
+-\frac{1}{4} & \frac{1}{2}-\frac{3}{4}
+\end{pmatrix} 
+\begin{pmatrix}
+x_1 \\ x_2
+\end{pmatrix}&=0 \\ \\
+\begin{pmatrix}
+-\frac{1}{4} & -\frac{1}{4} \\
+-\frac{1}{4} & -\frac{1}{4}
+\end{pmatrix} 
+\begin{pmatrix}
+x_1 \\ x_2
+\end{pmatrix}&=0
+\end{align*}
+Así, $-\frac{1}{4}x_1-\frac{1}{4}x_2=0$ entonces $x_1=-x_2$. si $x_1=1$ entonces $x_2=-1$. El vector $v_2=(1,-1)'$ normalizado es igual a $\left(\frac{1}{\sqrt2},-\frac{1}{\sqrt2}\right)'$.
+
+Entonces $D = \begin{pmatrix}
+\lambda_1 & 0 \\ 
+0 & \lambda_2
+\end{pmatrix}=\begin{pmatrix}
+\frac{1}{4} & 0 \\ 
+0 & \frac{3}{4}
+\end{pmatrix}$ y $P = \begin{pmatrix}
+v_1 & v_2
+\end{pmatrix}= \frac{1}{\sqrt{2}}\begin{pmatrix}
+1 & 1 \\ 
+1 & -1
+\end{pmatrix}$
+
+Por la descomposición antes mencionada tenemos que $A=PDP^{-1}$, 
+Por otro lado tenemos que:
+$$log (1+x) = \sum_{n=1}^{\infty} (-1)^{n+1}\dfrac{x^n}{n}$$
+entonces
+\begin{align*}
+    log (1+A) &= P\left[\sum_{n=1}^{\infty} (-1)^{n+1}\dfrac{D^n}{n} \right]P^{-1} \\
+    &= P\left[\sum_{n=1}^{\infty} \dfrac{(-1)^{n+1}}{n}D^n \right]P^{-1} \\
+    &= P\left[\sum_{n=1}^{\infty} \dfrac{(-1)^{n+1}}{n} \begin{pmatrix}
+\left(\frac{1}{4} \right)^n & 0 \\ 
+0 & \left(\frac{3}{4} \right)^n
+\end{pmatrix} \right]P^{-1} \\
+&= P\left[ \begin{pmatrix}
+\sum_{n=1}^{\infty}\dfrac{(-1)^{n+1}\left( \frac{1}{4} \right)^n}{n} & 0 \\ 
+0 & \sum_{n=1}^{\infty}\dfrac{(-1)^{n+1}\left(\frac{3}{4} \right)^n}{n} 
+\end{pmatrix} \right]P^{-1} \\
+&= P \begin{pmatrix}
+log\left(1+\frac{1}{4} \right)& 0 \\ 
+0 & log\left(1+\frac{3}{4}\right)
+\end{pmatrix}P^{-1} \\
+&= \frac{1}{\sqrt{2}}\begin{pmatrix}
+1 & 1 \\ 
+1 & -1
+\end{pmatrix} \begin{pmatrix}
+log\left(\frac{5}{4} \right)& 0 \\ 
+0 & log\left(\frac{7}{4}\right) 
+\end{pmatrix} \frac{1}{\sqrt{2}}\begin{pmatrix}
+1 & 1 \\ 
+1 & -1
+\end{pmatrix} \\
+&= \frac{1}{\sqrt{2}\cdot\sqrt{2}}\begin{pmatrix}
+1 & 1 \\ 
+1 & -1
+\end{pmatrix} \begin{pmatrix}
+log\left(\frac{5}{4} \right)& log\left(\frac{5}{4} \right) \\ 
+log\left(\frac{7}{4}\right) & -log\left(\frac{7}{4}\right) 
+\end{pmatrix} \\
+&= \frac{1}{2} \begin{pmatrix}
+log\left(\frac{35}{16} \right)& -log\left(\frac{7}{5} \right) \\ 
+-log\left(\frac{7}{5}\right) & log\left(\frac{35}{16}\right) 
+\end{pmatrix}
+\end{align*}

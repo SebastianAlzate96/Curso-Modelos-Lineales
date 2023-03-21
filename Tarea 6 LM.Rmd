@@ -1,0 +1,144 @@
+---
+title: "Tarea 6 LM"
+author: "Sebastian Alzate Vargas"
+date: "Febrero 04/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Problema 1
+Considere el siguiente conjunto de datos artificiales y su resumen del comando lm:
+```{R}
+set.seed(111)
+x1=round(sort(runif(100)), 2)
+x2=round(sort(runif(100)), 2)
+x3=round(sort(runif(100)), 2)
+y=round(1+2*x1+3*x2+4*x3+rnorm(100),1)
+summary(lm(y~x1+x2+x3))
+```
+
+## Solución 1
+Encontremos $\hat\beta$ de la siguiente forma: $\hat{\beta} = (X'X)^{-1}X'y$
+```{R}
+X<-cbind(1,x1,x2,x3)
+Betahat<-round(solve(t(X)%*%X)%*%t(X)%*%y,4)  # Teorema 6.2.2
+Betahat
+```
+Los residuales estan dados por: $\hat{\epsilon} = y-X\hat{\beta}$, a los cuales les podemos hallar los cuartiles
+```{R}
+ehat<-y-X%*%Betahat
+quantile(ehat)
+```
+Por corolario 6.2.14 tenemos que $s^2(X'X)^{-1}$ es un estimador para $cov(\hat{\beta})$, donde $s$ esta dado por $s^2=\frac1{n-k-1}\sum (y_i-\hat y_i)^2$. Así, una estimación para la desviación de los parametros estimados es:
+```{R}
+s2<-sum(ehat^2)/96
+std.err<-s2*solve(t(X)%*%X)
+round(sqrt(diag(std.err)),5)
+```
+la suma de los errores al cuadrado estan dados por $SSE=y'y-\hat{\beta}'X'y$ y una estimacion para la desviacion estandar de los errores es: $\sqrt\frac{SSE}{n-k-1}$
+```{R}
+SSE<-t(y)%*%y-t(Betahat)%*%t(X)%*%y
+des.error<-sqrt(SSE/96)
+des.error
+```
+Podemos hacer uso de eso y construir un estadistico de prueba f, pero necesitamos primero encontrar $SSR$, el cual esta dado por $\text{SSR} = \sum (\hat{y}_i-\bar{y})^2$
+```{R}
+SSR<-t(X%*%Betahat-matrix(mean(y),100,1))%*%
+                       (X%*%Betahat-matrix(mean(y),100,1))
+```
+Nuestro estadistico de prueba esta dado por: $\text{f}=\dfrac{\text{SSR}/k}{\text{SSE}/(n-k-1)}$. Así, 
+```{R}
+F<-(SSR/3)/(SSE/96)
+pf(F,3,96,lower.tail = FALSE)
+```
+
+
+# Problema 2
+Digamos que justo encontramos $\hat{\beta}$ con $k$ variables predictoras. Nos gustaría otro predictor, junto con los ya utilizados. Si $k$ es grande, esto significa invertir una matriz $k+1\times k+1$. Pero ya tenemos una matriz invertida de $k\times k$. Muestre como podemos hacer uso de eso
+
+## Solución 2
+Sabemos que $\hat{\beta_k}=\left(X'X\right)^{-1}X'y$, observemos
+ \begin{align*}
+     X_{(k+1)}'X_{(k+1)} &=
+\begin{pmatrix}
+n  &  \sum_i x_{i1} &  \sum_i x_{i2} & ... & \sum_i x_{ik} & \sum_i x_{i(k+1)} \\
+\sum_i x_{i1}  & \sum_i x_{i1}^2  &  \sum_i x_{i1}x_{i2} & ... & \sum_i x_{i1}x_{ik} & \sum_i x_{i1}x_{i(k+1)}\\
+\vdots  & \vdots  &\vdots  & ...  & \vdots  &\vdots\\
+\sum_i x_{ik}  & \sum_i x_{i1}x_{ik}  &  \sum_i x_{i2}x_{ik}  & ... & \sum_i x_{ik}^2 &  \sum_i x_{ik}x_{i(k+1)}\\
+\sum_i x_{i(k+1)}  & \sum_i x_{i1}x_{i(k+1)}  & \sum_i x_{i2}x_{i(k+1)} & ... & \sum_i x_{ik}x_{i(k+1)} &  \sum_i x_{i(k+1)}^2
+\end{pmatrix}\\ \\
+&= \begin{pmatrix}
+X'X & a \\
+a' & c 
+\end{pmatrix}
+ \end{align*}
+Donde $a=\left(\sum_i x_{i(k+1)} \ \sum_i x_{i1}x_{i(k+1)} \cdots  \sum_i x_{ik}x_{i(k+1)}\right)'$ y $c=\sum_i x_{i(k+1)}^2$
+
+La matriz anterior es simetrica y no singular entonces por teorema 4.2.4, podemos hacer una partición de la siguiente forma:
+
+Sea $b=c-a'(X'X)^{-1}a$, entonces
+
+\begin{align*}
+    (X_{(k+1)}'X_{(k+1)})^{-1}=\dfrac{1}{b}\begin{pmatrix}
+b\left(X'X\right)^{-1}+\left(X'X\right)^{-1}aa'\left(X'X\right)^{-1}   & -\left(X'X\right)^{-1}a  \\
+-a'\left(X'X\right)^{-1}  &  1  \\
+\end{pmatrix}
+\end{align*}
+
+Asi, $\hat{\beta}_{k+1}=\left(X_{(k+1)}'X_{(k+1)}^{-1}\right)^{-1}X_{(k+1)}'y$
+
+# Problema 3
+Considere el siguiente conjunto de datos:
+```{R}
+set.seed(1111)
+x1=1:10
+x2=sort(round(runif(10,0,10), 1))
+y=round(2+3*x1+4*x2+rnorm(10),1)
+cbind(y,x1,x2)
+```
+Utilice el método de Gram-Schmitt para encontrar una transformación $U=AX$ tal que $U$ es ortogonal. Use esto para verificar el teorema (6.3.4) .
+
+## Solución 3
+Primero encontremos una matriz ortogonal con el proceso de Gram-Schmitt
+```{R}
+library(matlib)
+X<-cbind(1,x1,x2)
+U<-GramSchmidt(X,normalize = FALSE)
+U
+```
+Nuestro modelo reducido es $y=X\beta$, si multiplicamos por una matriz $A$ nos queda $Ay=U\beta$, donde $U=AX$, entonces podemos encontrar a $A$
+```{R}
+library(MASS)
+A<-U%*%ginv(X)
+```
+Verifiquemos que $x_1$ y $x_2$ son ortogonales
+```{R}
+t(U[,1])%*%U[,2]
+```
+Así, por teorema se cumple que $\hat\beta_1=\hat\beta^*_1$. Entonces $\hat{\beta}^*_1=(X_1'X_1)^{-1}X_1'y$, donde $X_1$ son las dos primeras columnas de la matriz $U$. Definamos la siguientes variables y encontremos $\hat{\beta}^*_1%$
+```{R}
+X1<-cbind(U[,1],U[,2])
+X2<-U[,3]
+y<-A%*%y
+solve(t(X1)%*%X1)%*%t(X1)%*%y
+```
+Ahora para encontrar $\hat\beta_2$ podemos hacer el siguiente proceso
+```{R}
+yhatX1 = X1%*%solve(t(X1)%*%X1)%*%t(X1)%*%y
+y1=y-yhatX1
+X2hat.X1=X1%*%solve(t(X1)%*%X1)%*%t(X1)%*%X2
+X2.1 = X2-X2hat.X1
+round(t(X1)%*%X2.1, 5) # Verificar que X2.1 es ortogonal con X1
+
+round(c(solve(t(X2.1)%*%X2.1)%*%t(X2.1)%*%y1), 2)
+```
+Lo cual se puede verificar con el comando lm
+```{R}
+set.seed(1111)
+x1=1:10
+x2=sort(round(runif(10,0,10), 1))
+y=round(2+3*x1+4*x2+rnorm(10),1)
+X<-data.frame(y,x1,x2)
+round(coef(lm(y~., data=X)), 2)
+```

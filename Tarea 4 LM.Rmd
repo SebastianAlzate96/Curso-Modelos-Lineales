@@ -1,0 +1,267 @@
+---
+title: "Tarea 4 LM"
+author: "Sebastian Alzate Vargas"
+date: "Febrero 18/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+# Problema 1
+Sea $X,Y$ una normal multivariada con vector de medias $\pmb{\mu}=\begin{pmatrix} 1 \\ 2\end{pmatrix}$ y matriz de covarianza $\pmb{\Sigma}=\begin{pmatrix} 2 & 2 \\ 2 & 4\end{pmatrix}$. Encuentre $P(X<Y)$ y $P\left(X<1\vert Y=0.5\right)$
+
+## Solución 1
+\noindent a) Como $X, Y$ se distribuyen normal, entonces la variable aleatoria $X-Y$ tiene distribución normal con 
+
+\begin{align*}
+    &E(X-Y)= E(X)-E(Y) = 1-2=-1\\ \\
+    &Var(X-Y)= Var(X)+Var(-Y) + 2Cov(X,-Y)= 2+4-2(2)=2\\
+\end{align*}
+
+\noindent Por lo tanto $X-Y \sim N(-1,2 )$
+
+\noindent Así,
+
+\begin{align*}
+    P(X<Y)= P(X-Y<0)
+    &= P\left(\frac{X-Y+1}{\sqrt{2}}<\frac{1}{\sqrt{2}}\right) \\ \\
+    &= \phi\left(\frac{1}{\sqrt{2}}\right) \\ \\
+    &= 0.7602499
+\end{align*}
+\noindent b) Consideremos $W=\binom{X}{Y}$, podemos encontrar la función de densidad de $W$ en la función de densidad en una multivariada con $p=2$, así obtenemos:
+
+\begin{align*}
+    f_W(w)= (2\pi)^{-2/2}\vert \Sigma\vert^{-1/2}\exp\{-(w-\mu)' \Sigma^{-1}(w-\mu)/2\}
+\end{align*}
+Hallemos cada uno de esas componentes de esa función de densidad
+
+\begin{align*}
+    \vert \Sigma \vert &= \begin{vmatrix} 2 & 2 \\ 2 & 4 \end{vmatrix}=8-4=4
+\\ \\
+    \Sigma^{-1}&=\dfrac{1}{det\Sigma}\begin{pmatrix} 4 & -2 \\ -2 & 2 \end{pmatrix}=\dfrac{1}{4}\begin{pmatrix} 4 & -2 \\ -2 & 2 \end{pmatrix}
+\\ \\
+    (w-\mu)' \Sigma^{-1}(w-\mu)&=\left(\binom{x}{y}- \binom{1}{2} \right)'\dfrac{1}{4}\begin{pmatrix} 4 & -2 \\ -2 & 2 \end{pmatrix}\left(\binom{x}{y}- \binom{1}{2} \right)\\
+    &=\dfrac{1}{4}\begin{pmatrix} x-1 & y-2 \end{pmatrix}\begin{pmatrix} 4 & -2 \\ -2 & 2 \end{pmatrix}\begin{pmatrix} x-1 \\ y-2 \end{pmatrix}\\
+    &=\dfrac{1}{4}\begin{pmatrix} x-1 & y-2 \end{pmatrix}\begin{pmatrix} 4x-4-2y+4 \\ -2x+2+2y-4\end{pmatrix}\\
+    &=\dfrac{1}{4}\begin{pmatrix} x-1 & y-2 \end{pmatrix}\begin{pmatrix} 4x-2y \\ 2y-2x-2\end{pmatrix}\\
+    &=\dfrac{1}{4}\left(4x^2-2xy-4x+2y+2y^2-2xy-2y-4y+4x+4 \right)\\
+    &=x^2-xy-y+1+\dfrac{1}{2}y^2
+\end{align*}
+Así,
+
+\begin{align*}
+    f_W(w)= \dfrac{1}{2\pi\sqrt{4}}\exp\left\{-\frac{1}{2}\left(x^2-xy-y+1+\dfrac{1}{2}y^2 \right)\right\}
+\end{align*}
+
+Ahora hallemos $f_{Y}(y)$, con $Y\sim N(\mu=2,\sigma^2=
+4)$
+
+\begin{align*}
+    f_{Y}(y)=\dfrac{1}{\sqrt{2\pi 4}}\exp\left\{-\frac{(y-2)^2}{2\cdot4} \right\}
+\end{align*}
+
+Reemplanzando los resultados anteriores en la función de densidad condicional:
+$$f_{X\vert Y=y}(x\vert y)=\frac{f(y,x)}{f_{Y}(y)}$$
+
+
+Obtenemos
+
+\begin{align*}
+    f_{X\vert Y=y}(x\vert y)
+    &=\dfrac{\dfrac{1}{2\cdot2\pi}\exp\left\{-\dfrac{1}{2}\left(x^2-xy-y+1+\dfrac{1}{2}y^2 \right)\right\}}{\dfrac{1}{2\cdot\sqrt{2\pi }}\exp\left\{-\dfrac{(y-2)^2}{2\cdot4} \right\}}\\
+    &=\dfrac{\sqrt{2\pi}}{2\pi}\exp\left\{-\dfrac{1}{2}\left[x^2-xy-y+1+\dfrac{1}{2}y^2 -\dfrac{y^2}{4}+y-1 \right] \right\}\\
+    &=\dfrac{1}{\sqrt{2\pi}}\exp\left\{-\dfrac{1}{2}\left[x^2-xy+\dfrac{1}{4}y^2 \right] \right\}\\
+    &=\dfrac{1}{\sqrt{2\pi}}\exp\left\{-\dfrac{1}{2}\left(x-\dfrac{1}{2}y\right)^2 \right\}
+\end{align*}
+
+Así tenemos que $f_{X\vert Y=y}(x\vert y) \sim N(\frac{1}{2}y,1)$, Ahora, como $y=0.5$ entonces $f_{X\vert Y=0.5}(x\vert y) \sim N(\frac{1}{4},1)$, entonces
+
+\begin{align*}
+    P(Z<1)&=P\left(\dfrac{Z-1/4}{1}<\dfrac{1-1/4}{1}\right)\\
+    &=P\left(\dfrac{Z-1/4}{1}<\dfrac{3}{4}\right)\\
+    &=\Phi\left(\frac{3}{4}\right)
+\end{align*}
+
+Por tanto, $$P(X<1|Y=0.5)=\Phi\left(\frac{3}{4}\right)=0.77337$$
+
+# Problema 2
+i. Digamos que $X\sim N(\begin{pmatrix}1\\1\end{pmatrix}, \begin{pmatrix}2&-1\\-1& 2\end{pmatrix}$. Encuentre $var(X_1^2+X_2^2)$
+
+ii. $X=\begin{pmatrix}X_1&...&X_n\end{pmatrix}\sim N(0, \Sigma)$ con $var(X_i)=2$ y $cov(X_i,X_j)=1$ si $\vert i-j\vert=1$, 0 en otro caso. Encuentre $var(\sum_{i=1}^n X_i^2)$
+
+## Solución 2
+
+
+i. Por teorema tenemos que $var(X'AX) = 2tr[(A\Sigma)^2]+4\mu'A\Sigma A\mu$.
+
+Si consideremos la matriz de constantes $A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}$. Tenemos:
+$$X'AX = (X_1 \ X_2)\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \binom{X_1}{X_2} = X_1^2 + X_2^2$$
+
+La cual se acomoda a nuestro ejercicio, ahora hallemos cada una de las componentes
+
+$$(A\Sigma)^2 = (I\Sigma)^2 = (\Sigma)^2 = \begin{pmatrix}2&-1\\-1& 2\end{pmatrix} \begin{pmatrix}2&-1\\-1& 2\end{pmatrix} = \begin{pmatrix}5&-4\\-4& 5\end{pmatrix}$$
+
+$$\mu' A \Sigma A \mu= \mu' I\Sigma I \mu = \mu'\Sigma \mu = (1 \ 1)\begin{pmatrix} 2 & -1 \\ -1 & 2 \end{pmatrix} \binom{1}{1} = (1 \ 1) \binom{1}{1} = 2$$
+Entonces, 
+\begin{align*}
+    var(X_1^2 + X_2^2) &= var(X'AX)\\ &= 2tr[(A\Sigma)^2]+4\mu'A\Sigma A\mu \\
+    &= 2tr\begin{pmatrix}5&-4\\-4& 5\end{pmatrix} +4(2)\\
+    &= 2(5+5)+8 \\
+    &= 28
+\end{align*}
+
+ii. Consideremos la matriz de covarianzas 
+$$\Sigma = 
+\begin{pmatrix} 
+2 & 1 & 0 & 0 & \cdots & 0 & 0 & 0 \\ 
+1 & 2 & 1 & 0 & \cdots & 0 & 0 & 0 \\  
+0 & 1 & 2 & 1 & \cdots & 0 & 0 & 0 \\
+\vdots  &  &  &  & \vdots  &  &  & \vdots\\
+0 & 0 & 0 & 0 & \cdots & 1 & 2 & 1 \\
+0 & 0 & 0 & 0 & \cdots & 0 & 1 & 2 \\
+\end{pmatrix}$$
+Sea $A = I_n$ una matriz de constantes y $X=(X_1 \ X_2 \cdots X_n)'$. Entonces $$X'AX = X'AX = X'I_nX = X'X = \sum_{i=1}^n X_i^2$$
+
+Por teorema tenemos que $$var\left( \sum_{i=1}^n X_i^2 \right) = var(X'AX) = 2tr[(A\Sigma)^2]+4\mu'A\Sigma A\mu$$
+
+Por hipótesis tenemos que $\mu = 0$, entonces $\mu'A\Sigma A\mu = 0$. 
+
+Hallemos cada uno de los términos que compone la igualdad del teorema
+
+\begin{align*}
+    (A\Sigma)^2 = (I_n\Sigma)^2 &= (\Sigma)^2 \\
+    &= \begin{pmatrix} 
+2 & 1 & 0 & 0 & \cdots & 0 & 0 & 0 \\ 
+1 & 2 & 1 & 0 & \cdots & 0 & 0 & 0 \\  
+0 & 1 & 2 & 1 & \cdots & 0 & 0 & 0 \\
+\vdots  &  &  &  & \vdots  &  &  & \vdots\\
+0 & 0 & 0 & 0 & \cdots & 1 & 2 & 1 \\
+0 & 0 & 0 & 0 & \cdots & 0 & 1 & 2 \\
+\end{pmatrix}\begin{pmatrix} 
+2 & 1 & 0 & 0 & \cdots & 0 & 0 & 0 \\ 
+1 & 2 & 1 & 0 & \cdots & 0 & 0 & 0 \\  
+0 & 1 & 2 & 1 & \cdots & 0 & 0 & 0 \\
+\vdots  &  &  &  & \vdots  &  &  & \vdots\\
+0 & 0 & 0 & 0 & \cdots & 1 & 2 & 1 \\
+0 & 0 & 0 & 0 & \cdots & 0 & 1 & 2 \\
+\end{pmatrix} \\
+&= \begin{pmatrix} 
+5 & 4 & 1 & 0 & 0 &\cdots & 0 & 0 & 0 \\ 
+4 & 6 & 4 & 1 & 0 &\cdots & 0 & 0 & 0 \\  
+1 & 4 & 6 & 4 & 1 &\cdots & 0 & 0 & 0 \\
+0 & 1 & 4 & 6 & 4 &\cdots & 0 & 0 & 0 \\
+\vdots  &  &  &  &  &\vdots  &  &  & \vdots\\
+0 & 0 & 0 & 0 & 0 & \cdots & 4 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & \cdots & 6 & 4 & 1 \\
+0 & 0 & 0 & 0 & 0 & \cdots & 4 & 6 & 4 \\
+0 & 0 & 0 & 0 & 0 & \cdots & 1 & 4 & 5 \\
+\end{pmatrix}
+\end{align*}
+Entonces, $tr (A\Sigma)^2 = 5 + 6(n-2) + 5 = 6n-2$.
+
+Así,
+
+\begin{align*}
+    var\left( \sum_{i=1}^n X_i^2 \right) &= var(X'AX)\\
+    &= 2tr[(A\Sigma)^2]+4\mu'A\Sigma A\mu \\
+    &= 2(6n-2)\\
+    &= 12n-4
+\end{align*}
+
+# Problema 3
+Sea $X\sim N(\begin{pmatrix}1\\1\end{pmatrix}, \begin{pmatrix}2&-1\\-1& 2\end{pmatrix}$  Encuentre $cov(X_1+X_2, X_1^2+X_2^2)$
+
+## Solución 3
+Por corolario tenemos
+$$Cov(BX,X'AX)= 2B \Sigma A \mu$$
+
+Consideramos $B=(1,1)$ y $A=\begin{pmatrix}1&0\\0& 1\end{pmatrix}$ una matriz de constantes
+
+Ahora, hallemos las siguientes expresiones
+
+\begin{align*}
+    &BX= (1,1)\binom{X_1}{X_2} = X_1+X_2\\ \\
+    &  X'AX= (X_1,X_2)\begin{pmatrix}1&0\\0& 1\end{pmatrix}\binom{X_1}{X_2} = (X_1,X_2)\binom{X_1}{X_2}= X_1^2+
+    X_2^2\\ \\
+\end{align*}
+
+Por lo cual, el corolario se ajusta a nuestro problema y podemos hallar $cov(X_1+X_2, X_1^2+X_2^2)$. Entonces
+
+\begin{align*}
+   cov(X_1+X_2, X_1^2+X_2^2)&= Cov(BX,X'AX)\\&= 2B\Sigma A \mu \\
+    &= 2(1,1)\begin{pmatrix}2&-1\\-1&2\end{pmatrix}\begin{pmatrix}1&0\\0& 1\end{pmatrix}\binom{1}{1}\\
+    &= 2(1,1)\begin{pmatrix}2&-1\\-1&2\end{pmatrix}\binom{1}{1} \\
+    &= 2(1,1)\binom{1}{1} \\
+    &= 2(2)\\
+    &= 4 \\
+\end{align*}
+
+
+
+# Problema 4
+Supongamos que $y=(y_1\text{ .. }y_n)'$ una muestra de $N(\mu,\sigma^2)$. Queremos probar $$H_0:\mu=\mu_0\text{ vs }H_a:\mu\ne\mu_0$$
+Usando el test usual del estadistico $T=\sqrt{n}\frac{\bar{y}-\mu_0}{s}$ y rechazamos $H_0$ si $|T|>qt(\alpha/2, n-1)$. Encuentre el poder del test con $\mu=\mu_1$. Como un ejemplo numerico use $\mu_0=1,\mu_1=1.5,\sigma=2,n=100,\alpha=0.05$
+
+a. directamente
+b. usando la distribucion no central T
+
+## Solución
+
+#### Directamete
+
+Sabemos que $T\sim t(\alpha/2,n-1)$.
+
+La potencia se define de la siguiente manera:
+
+\begin{align*}
+    potencia&= P(\textit{Rechazar $H_0 | H_0$ es falsa}) \\ \\
+    &= P(|T|> cv | \textit{$H_0$  es falsa}) \\ \\
+    &= 1-P(|T| \leq cv | \mu=\mu_1) \\ \\
+    &= 1-P(-cv \leq T \leq cv|\mu=\mu_1) \\ \\
+    &= 1-P\left(-cv \leq \sqrt{n}\frac{\overline{y}-\mu_1}{s} + \sqrt{n}\frac{\mu_1-\mu_0}{s} \leq cv|\mu=\mu_1\right) \\ \\
+    &= 1-P\left(-cv-\sqrt{n}\frac{\mu_1-\mu_0}{s} \leq \sqrt{n}\frac{\overline{y}-\mu_1}{s} \leq cv-\sqrt{n}\frac{\mu_1-\mu_0}{s} | \mu=\mu_1\right) \\ \\
+    &=1 - pt\left(cv-\sqrt{n}\frac{\mu_1-\mu_0}{s} \right) + pt\left(-cv-\sqrt{n}\frac{\mu_1-\mu_0}{s} \right)
+\end{align*}
+
+Para el ejemplo numérico tenemos que $qt(\alpha/2,n-1)=qt(0.025,99)=-1.984217$ así el valor critico es $cv=1.984217$
+
+\begin{align*}
+    potencia&= 1 - pt\left(1.984217-10\frac{0.5}{2} \right) + pt\left(-1.984217-10\frac{0.5}{2} \right)
+\end{align*}
+```{R}
+potencia<-1-pt(-qt(0.025,99)-5*0.5,99)+pt(qt(0.025,99)-5*0.5,99)
+potencia
+```
+Así, $potencia= 0.6964319$
+
+
+#### Procedimiento usando la distibución $t$ no central
+Tenemos que: 
+\begin{align*}
+F_{T}(t) =P(T<t)&=P\left(\sqrt{n}\frac{\overline{Y}-\mu_0}{s}<t\right) \\
+&=P\left(\frac{\frac{\overline{Y}-\mu_0}{\sigma/\sqrt{n}}}{\frac{s}{\sigma}}<t\right)\\
+&=P\left(\frac{\frac{\overline{Y}-\mu_0}{\sigma/\sqrt{n}}}{\sqrt{\frac{s^2}{\sigma^2}}}<t\right)\\
+&=P\left(\frac{\frac{\overline{Y}-\mu_0}{\sigma/\sqrt{n}}}{\sqrt{\frac{(n-1)s^2}{\sigma^2}\displaystyle/(n-1)}}<t\right)\\
+&P(T'<t)=F_{T'}(t)
+\end{align*}
+Notemos que: $X'=(n-1)\dfrac{s^2}{\sigma^2}\sim \chi^2(n-1)$. Además
+\begin{align*}
+    \mathbb{E}\left( \overline{Y}-\mu_0\right)&=\mathbb{E}(\overline{Y})-\mu_0=\mu-\mu_0 \\ \\
+Var\left( \overline{Y}-\mu_0\right)&=\frac{1}{n^2}\sum Var(y_i)=\dfrac{\sigma^2}{n}
+\end{align*}
+$Y'=\overline{Y}-\mu_0\sim N(\mu'=\mu-\mu_0,\sigma'^2=\sigma^2/n)$
+
+Entonces $T'=\frac{Y'/\sigma'}{\sqrt{X'/n-1}}\sim t(n-1, \mu'/\sigma')$. Por tanto $T'\sim t\left(n-1,\frac{\sqrt{n}(\mu-\mu_0)}{\sigma}\right)$
+
+Ahora hallemos la potencia
+
+\begin{align*}
+    Potencia&= P(\textit{Rechazar $H_0 | H_0$ es falsa}) \\    &=P(|T|> cv | \textit{$H_0$  es falsa})\\
+    &=1-F_{T'}(-qt(\alpha/2,n-1),n-1,NCP)+F_{T'}(qt(\alpha/2,n-1),n-1,NCP)
+\end{align*}
+
+Para el ejemplo numérico usamos nuevamente la herramienta RStudio
+```{r}
+pp<-1-pt(-qt(0.025,99),99,2.5)+pt(qt(0.025,99),99,2.5)
+pp
+
+```

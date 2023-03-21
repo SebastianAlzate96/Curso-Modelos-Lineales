@@ -1,0 +1,252 @@
+---
+title: "HW 8"
+author: "Sebastian Alzate Vargas"
+date: "Marzo 26/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Problem 1
+Encuentre fórmulas de predicción e intervalos de confianza para $y| x=x_0$ en un modelo sin intersección. Utilice la simulación para demostrar que sus fórmulas tienen intervalos de confianza del $95\%$ adecuados en el casox $x=1:100/100, y=x +\varepsilon_i, \ \varepsilon_i\sim N(0,1/2)$ y $X_0= 0.5$
+
+
+# Problem 2 
+Un gráfico popular en muchos campos de la ciencia es el siguiente: Un diagrama de dispersión con la curva ajustada y “barras de error” en cada una de las observaciones, es decir, intervalos de confianza del $95\%$.
+
+a. escriba una rutina que cree este gráfico para cualquier problema de regresión simple.
+
+b. Utilice la simulación para encontrar la cobertura de estos intervalos si se interpretan como intervalos familiares.
+
+Nota:La cobertura familiar es el porcentaje de casos en los que todos los intervalos cruzan la línea.
+
+c. Encuentre un método que produzca intervalos que tengan una verdadera tasa de error familiar del $68\%$.
+
+## Solution 1
+\noindent Escojamos $\pmb{x_0}=(x_1,...,x_n)$ una elección particular de $\pmb{X}$ del modelo 
+$y= \pmb{X \beta} + \pmb{\varepsilon}$.
+Sea $y_0$ la observación correspondiente a $\pmb{x_0}$ es decir $y|X=x_0=y_0$
+
+$$y_0 = \pmb{x_0}'\pmb{\beta} + \varepsilon_0 \ \ y \ \ E(y_0)= \pmb{x_0}'\pmb{\beta}$$
+Para que el modelo sea consistente supongamos que $\pmb{\varepsilon} \sim N(0,\sigma^2I)$ 
+
+Luego, por corolario 6.2.10  $\pmb{x_0}'\hat{\pmb{\beta}}$ es BLUE, y por definición 6.29, el estimador $\pmb{x_0}'\hat{\pmb{\beta}}$ es unbiased. Por tanto
+
+$$E(\pmb{x_0}'\hat{\pmb{\beta}})= \pmb{x_0}'\pmb{\beta}$$
+\begin{align*}
+var({\pmb{x'_0}\hat{\pmb{\beta}}})    &=\sigma^2{\pmb{x_0}'}(\pmb{X'X})^{-1}{\pmb{x_0}}  \\
+&={\sigma^2\pmb{x_0}'}(\pmb{X'X})^{-1}{\pmb{x_0}}
+\end{align*}
+
+ 
+ Notemos:
+
+\begin{align*}
+    Z=\frac{\pmb{x_0}'\hat{{\pmb{\beta}}}- \pmb{x_0}'\pmb{\beta}}{\sigma \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}}} \sim N(0,1) \ \ \text{ y } \ \
+    Y= (n-k)\frac{s^2}{\sigma^2} \sim \chi^2(n-k)
+\end{align*}
+ 
+  Por la definición 5.4.11 tenemos que 
+  
+  \begin{align*}
+      T= \dfrac{Z}{\sqrt{\frac{Y}{n-k}}} = \frac{\pmb{x_0}'\hat{\pmb{\beta}}- \pmb{x_0}'{\pmb{\beta}}}{s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}}} \sim t(n-k)
+  \end{align*}
+  
+  Por tanto, si queremos un intervalo de confianza del $100(1-\alpha)\%$, tenemos que 
+  
+  \begin{align*}
+    1-\alpha=&P\left(-t_{\alpha/2,n-k} \leq \frac{\pmb{x_0}'\hat{\pmb{\beta}}- \pmb{x_0}'{\pmb{\beta}}}{s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}}} \leq t_{\alpha/2,n-k}\right) \\ 
+    =&P\left(-t_{\alpha/2,n-k}\cdot s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}} \leq \pmb{x_0}'\hat{\pmb{\beta}}-\pmb{x_0}'\pmb{\beta} \leq t_{\alpha/2,n-k}\cdot s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}}\right)\\
+    =&P\left(\pmb{x_0}'\hat{\pmb{\beta}}-t_{\alpha/2,n-k}\cdot s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}} \leq \pmb{x_0}'\pmb{\beta} \leq \pmb{x_0}'\hat{\pmb{\beta}}+t_{\alpha/2,n-k}\cdot s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}}\right)
+\end{align*}
+
+Asi nuestro intervalo de confianza es:
+
+$$\left(\pmb{x_0}'\hat{\pmb{\beta}}-t_{\alpha/2,n-k}\cdot s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}}\ , \  \pmb{x_0}'\hat{\pmb{\beta}}+t_{\alpha/2,n-k}\cdot s \sqrt{\pmb{x_0}'(\pmb{X'X})^{-1}\pmb{x_0}}\right)$$
+  
+Notemos que si nuestro modelo solo consta de una predictora tenemos:
+$$(\pmb{X'X})^{-1}=\dfrac{1}{\sum x_i^2}$$
+
+Asi, nuestro intervalo de confianza para $x_0\beta$ es 
+$$\left(x_0'\hat{\beta}-t_{\alpha/2,n-1}\cdot s \cdot \sqrt{\dfrac{x_0^2}{\sum x_i^2}} \ ,\  {x_0}'\hat{{\beta}}+t_{\alpha/2,n-1}\cdot s \cdot \sqrt{\dfrac{x_0^2}{\sum x_i^2}}\right)$$
+
+
+
+Usando el modelo e intervalo de confianza anterior, podemos hacer una simulacion:
+
+Consideremos $x=1:100/100 , y=x+\varepsilon_i, \varepsilon_i\sim N(0,1/2)$ y $x_0=0.5$
+```{r}
+tot<-0 # para contar quienes estan en el intervalo de confianza
+sim<-10000
+alpha<-0.05
+for (i in 1:sim) {
+  x<-matrix(1:100/100,nrow = 100)
+  y<-x+rnorm(100,0,0.25)
+  n<-length(x)
+  k<-ncol(x)
+  bethat<-solve(t(x)%*%x)%*%t(x)%*%y
+  SSE<-t(y)%*%y-t(bethat)%*%t(x)%*%y
+  den<-sqrt(SSE/(n-k))*sqrt(0.5*solve(t(x)%*%x)*0.5)
+  limsup<-0.5*bethat+qt(1-alpha/2,n-k)*den
+  liminf<-0.5*bethat-qt(1-alpha/2,n-k)*den
+  ifelse(0.5<=limsup&0.5>=liminf,tot<-tot+1,tot<-tot)
+}
+round(tot/sim,2)
+```
+Asi, las formulas tienen intervalos de confianza del $95\%$
+
+##### Intervalo de confianza para las predictoras 
+.
+
+
+Nuevamente por corolario 6.2.10  $a'y$ es BLUE, y por definición 6.29, el estimador $a'y$ es unbiased. Por tanto
+
+
+\begin{align*}
+    E(\hat \varepsilon) =& E(y_0-\hat y_0)= 0 \\
+var(y_0-\hat{y}_0) =&var(\pmb{x'_0\beta}+\pmb{\epsilon}_0-\pmb{x'_0\hat{\beta}}_0)\\
+=&var(\pmb{\epsilon}_0-\pmb{x'_0\hat{\beta}}_0)\\
+=&var(\pmb{\epsilon}_0)+var(\pmb{x'_0\hat{\beta}}_0)\\
+=&\sigma^2+\sigma^2\pmb{x_0'}(\pmb{X'X})^{-1}\pmb{x_0}\\
+=&\sigma^2\left[1+\pmb{x_0'}(\pmb{X'X})^{-1}\pmb{x_0}\right]
+\end{align*}
+
+Por lo tanto, podemos estandarizar 
+\begin{align*}
+    Z=\frac{ y_0 - \pmb{x_0}'\hat{{\pmb{\beta}}}}{\sigma \sqrt{\left(1+\pmb{x_0'}(\pmb{X'X})^{-1}\pmb{x_0}\right)}} \sim N(0,1) \ \ y \ \ Y= (n-k)\frac{s^2}{\sigma^2} \sim \chi^2(n-k)
+\end{align*}
+
+ Por la definición 5.4.11 tenemos que 
+
+\begin{align*}
+      T= \dfrac{Z}{\sqrt{\frac{Y}{n-k}}} = \frac{ y_0 - \pmb{x_0}'\hat{{\pmb{\beta}}}}{s \sqrt{\left(1+\pmb{x_0'}(\pmb{X'X})^{-1}\pmb{x_0}\right)}} \sim t(n-k)
+  \end{align*}
+
+  Por tanto, si queremos un intervalo de confianza del $100(1-\alpha)\%$ para la prediccion $y_0$ es:
+  
+ \begin{align*}
+    1-\alpha=&P\left(-t_{\alpha/2,n-k} \leq \frac{y_0 - \pmb{x_0}'{\pmb{\beta}}}{s \sqrt{1+\pmb{x_0}'(X'X)^{-1}\pmb{x_0}}} \leq t_{\alpha/2,n-k}\right) \\ 
+     =&P\left(-t_{\alpha/2,n-k}\cdot s \sqrt{1+\pmb{x_0}'(X'X)^{-1}\pmb{x_0}} \leq y_0 - \pmb{x_0}'{\pmb{\beta}} \leq  +t_{\alpha/2,n-k}\cdot s \sqrt{1+\pmb{x_0}'(X'X)^{-1}\pmb{x_0}}\right)\\
+    =&P\left(\pmb{x_0}'\hat{\pmb{\beta}}-t_{\alpha/2,n-k}\cdot s \sqrt{1+\pmb{x_0}'(X'X)^{-1}\pmb{x_0}} \leq y_0 \leq \pmb{x_0}'\hat{\pmb{\beta}} +t_{\alpha/2,n-k}\cdot s \sqrt{1+\pmb{x_0}'(X'X)^{-1}\pmb{x_0}}\right)
+\end{align*}
+
+El intervalo de confianza es:
+
+$$\left(\pmb{x_0}'\hat{\pmb{\beta}}-t_{\alpha/2,n-k}\cdot s \sqrt{1+\pmb{x_0}'(X'X)^{-1}\pmb{x_0}} \ , \  \pmb{x_0}'\hat{\pmb{\beta}} +t_{\alpha/2,n-k}\cdot s \sqrt{1+\pmb{x_0}'(X'X)^{-1}\pmb{x_0}}\right)$$
+
+
+Si nuestro modelo consta de una sola predictora tenemos el siguiente intervalo de confianza para $y$ en el punto $x_0$:
+
+$$\left(x_0'\hat{\beta}-t_{\alpha/2,n-1}\cdot s \cdot \sqrt{1+\dfrac{x_0^2}{\sum x_i^2}} \ ,\  {x_0}'\hat{{\beta}}+t_{\alpha/2,n-1}\cdot s \cdot \sqrt{1+\dfrac{x_0^2}{\sum x_i^2}}\right)$$
+```{r}
+tot2<-0
+B<-10000
+for (i in 1:B) {
+  x<-matrix(1:100/100,nrow = 100)
+  y<-x+rnorm(100,0,0.25)
+  n<-length(x)
+  bethat<-solve(t(x)%*%x)%*%t(x)%*%y
+  k<-1
+  alpha<-0.05
+  SSE<-t(y)%*%y-t(bethat)%*%t(x)%*%y
+  den<-sqrt(SSE/(n-k))*sqrt(1+0.5*solve(t(x)%*%x)*0.5)
+  limsup<-0.5*bethat+qt(1-alpha/2,n-k)*den
+  liminf<-0.5*bethat-qt(1-alpha/2,n-k)*den
+  ifelse(y[50]<=limsup&y[50]>=liminf,tot2<-tot2+1,tot2<-tot2)
+}
+round(tot2/B,2)
+```
+Asi, las formulas tienen intervalos de confianza del $95\%$
+
+
+## Solution 2
+a. La idea es encontrar los errores y formar los intervalos del $95\%$ alrededor de $y$
+
+```{r}
+set.seed(111)
+fun1<-function(x,beta0,beta1,alp){
+  n<-length(x)
+  y<-beta0+beta1*x+rnorm(10, 0, 2)
+  X<-cbind(1,x)
+  betahat<-solve(t(X)%*%X)%*%t(X)%*%y
+  SSE<-t(y-X%*%betahat)%*%(y-X%*%betahat)
+  yhat=betahat[1]+betahat[2]*x
+  Err<-0
+  for (i in 1:n) {
+    Err[i]<-sqrt(SSE)*qt(alp/2,n-2)*sqrt(X[i,]%*%
+                    solve(t(X)%*%X)%*%X[i,])/sqrt(n-2)
+  }
+  imp<-sum((yhat<=(y+abs(Err))&yhat>=(y-abs(Err))))
+  library(ggplot2)
+  gra<-ggplot(data=data.frame(x,y),aes(x,y))+
+    geom_abline(intercept = betahat[1],
+                slope = betahat[2],color="blue", size=0.8)+
+    geom_segment(aes(x = x, y = y-Err, xend = x, yend
+                     =y+Err),color="red",size=0.8)+
+    geom_point(color="black",size=1)
+  list(ca=cat('los intervalos que cruzan es:',imp),gra=gra)
+}
+x=1:10
+fun1(x,2,4,0.05)$gra
+```
+
+b. Hallemos una funcion que me cuente los intervalos que me crucen la linea.
+
+```{r}
+fun2<-function(x,beta0,beta1,alp){ # Me cuenta los intervalos que cruzan la linea
+  n<-length(x)
+  y<-beta0+beta1*x+rnorm(10, 0, 2)
+  X<-cbind(1,x)
+  betahat<-solve(t(X)%*%X)%*%t(X)%*%y
+  SSE<-t(y-X%*%betahat)%*%(y-X%*%betahat)
+  yhat=betahat[1]+betahat[2]*x
+  Err<-0
+  for (i in 1:n) {
+    Err[i]<-sqrt(SSE)*qt(alp/2,n-2)*sqrt(X[i,]%*%
+                    solve(t(X)%*%X)%*%X[i,])/sqrt(n-2)
+  }
+  imp<-sum((yhat<=(y+abs(Err))&yhat>=(y-abs(Err))))
+  imp
+}
+```
+Hagamos una simulacion para contar si todos los intervalos tocan la linea.
+
+```{r}
+x<-1:10
+Cobertura<-function(x,beta0,beta1,alp){
+  tot3<-0
+  for (i in 1:1000) {
+  tot3[i]<-fun2(x,2,4,alp)
+  }
+  tot3
+}
+x<-1:10
+cat('La cobertura para el modelo es', sum(Cobertura(x,2,4,0.05)==10)/1000)
+```
+
+
+c.
+
+```{r}
+alpha<-1:100/1000
+for (j in 1:length(alpha)) {
+  if (sum(Cobertura(x,2,4,alpha[j])!=10)>=680){
+    alpha[j]
+    break
+  }
+}
+cat('El alpha para tener un familywise error rate of 68% es:', alpha[j])
+sum(Cobertura(x,2,4,alpha[j])!=10)/1000
+```
+Hagamos otra simulacion para mirar que tiene aproximadamente $68\%$
+
+```{r}
+tot5<-0
+for (i in 1:100) {
+  tot5[i]<-sum(Cobertura(x,2,4,alpha[j])!=10)
+}
+sum(tot5)/1000
+```
+
+
+

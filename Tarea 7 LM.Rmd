@@ -1,0 +1,244 @@
+---
+title: "Tarea 7 LM"
+author: "Sebastian Alzate Vargas"
+date: "Febrero 11/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Problema 1
+Considere el siguiente modelo de regresión sin intercepto ponderado $y_i=\beta x_i+\epsilon _i$ donde $\epsilon_i\sim N(0, \sigma^2 x_i)$ y $cov(y_i,y_j)=0$, $i\ne j$
+
+a. Encuentre los estimadores de máxima verosimilitud de $\beta$ y $\sigma^2$ directamente, sin el uso del teorema (6.5.2).
+
+b. Asumiendo que sabemos $\sigma$, encontrar un $( 1 - \alpha) 100 \%$ intervalo de confianza para $\beta$.
+
+c. Para el caso $x = 0 : 100 / 100$, $\beta= \sigma= 2$ y un intervalo de confianza del $95\%$, escriba una simulación en R para comprobar si el intervalo de la parte b tiene la cobertura correcta.
+
+
+
+## Solución 1
+
+a. \maketitle
+Sea $X=( x_1 , x_2, ... ,x_n )'$ y $y=( y_1 , y_2, ... ,y_n )'$. Así,
+
+ $$E(y)=X\beta \ \ \text{y}\ \ var(y)= \sigma^2V$$
+
+Entonces, $y\sim N_{N}(X\beta,\sigma^2V)$. Como $cov(y_i,y_j)=0$, entonces $$V= \begin{pmatrix}
+ x_1 & 0 & \cdots & 0 \\ 
+ 0 & x_2 & \cdots & 0 \\ 
+ \vdots & \vdots & \ddots & \vdots \\
+ 0&0&\cdots & x_n 
+ \end{pmatrix}$$
+
+Como $V$ es una matriz diagonal, entonces $V^{-1}$ existe y es igual a:
+
+$$
+V^{-1} = \begin{pmatrix}
+\frac{1}{x_1} & 0 & \cdots & 0 \\ 
+ 0 & \frac{1}{x_2} & \cdots & 0 \\ 
+ \vdots & \vdots & \ddots & \vdots \\
+ 0&0&\cdots & \frac{1}{x_n} 
+\end{pmatrix}
+$$
+y por lo tanto $|V|= \prod x_i$, luego $|V|^{\frac{1}{2}}= \sqrt{\prod x_i}$
+
+Sabemos que la función Likelihood está  dada por: 
+
+\begin{align*}
+    L(\beta, \sigma^2) = \dfrac{1}{(2\pi)^{\frac{n}{2}}|\sigma^2V|^{\frac{1}{2}}} \exp\left\{-\left(y - X\beta \right)'V^{-{1}}\left(y - X\beta \right)/2\sigma^2 \right\}
+\end{align*}
+
+Hallemos $\left(y - X\beta \right)'V^{-{1}}\left(y - X\beta \right)$ 
+\begin{align*}
+    y- X\beta=  \begin{pmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{pmatrix} -\begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{pmatrix}\beta
+    &= \begin{pmatrix} y_1 -x_1\beta \\ y_2-x_2\beta \\ \vdots \\ y_n-x_n\beta \end{pmatrix}
+\end{align*}
+Por lo tanto 
+
+\begin{align*}
+\left(y - X\beta \right)'V^{-{1}}\left(y - X\beta \right)&=\begin{pmatrix} y_1 -x_1\beta \\ y_2-x_2\beta \\ \vdots \\ y_n-x_n\beta \end{pmatrix} ' \begin{pmatrix}
+ \frac{1}{x_1} & 0 & \cdots & 0 \\ 
+ 0 & \frac{1}{x_2} & \cdots & 0 \\ 
+ \vdots & \vdots & \ddots & \vdots \\
+ 0&0&\cdots & \frac{1}{x_n} 
+ \end{pmatrix}\begin{pmatrix} y_1 -x_1\beta \\ y_2-x_2\beta \\ \vdots \\ y_n-x_n\beta \end{pmatrix} \\ \\
+ &= \left(\frac{y_1 -x_1\beta}{x_1} \  \  \frac{y_2 -x_2\beta}{x_2} \ \  \cdots \ \  \frac{y_n -x_n\beta}{x_n}\right) \begin{pmatrix} y_1 -x_1\beta \\ y_2-x_2\beta \\ \vdots \\ y_n-x_n\beta \end{pmatrix}\\
+ &= \sum \frac{\left(y_i-x_i\beta\right)^2}{x_i}
+\end{align*}
+luego 
+
+\begin{align*}
+   L(\beta, \sigma^2) = \dfrac{1}{(2\pi \sigma^2)^{\frac{n}{2}} \sqrt{\prod x_i}} \exp{\left( \sum \frac{-\left(y_i-x_i\beta\right)^2}{2\sigma^2x_i} \right)}
+\end{align*}
+
+Tomando la funci\'on log tenemos 
+
+\begin{align*}
+   l(\beta, \sigma^2) = \frac{-1}{2\sigma^2}\sum \frac{\left(y_i-x_i\beta\right)^2}{x_i} -\frac{n}{2}log(2\pi\sigma^2) - \frac{1}{2}\sum log(x_i)
+\end{align*}
+Derivando con respecto $\beta$, obtenemos:
+\begin{align*}
+    \dfrac{\partial l \left(\beta, \sigma^2 \right)}{\partial \beta}&=-\dfrac{1}{2\sigma^2}\dfrac{\sum 2\left(y_i-x_i\beta\right)(-x_i)}{x_i}\\
+    &= \dfrac{1}{\sigma^2}\sum \left(y_i-x_i\beta\right)\\
+\end{align*}
+
+Igualamos a cero para encontrar el máximo
+
+\begin{align*}
+    0&= \dfrac{1}{\sigma^2}\sum \left(y_i-x_i\beta\right)\\
+    &=\sum \left(y_i-x_i\beta\right)\\
+    &=\sum y_i-\sum x_i \beta \\
+\end{align*}
+
+Así, el estimador de beta es igual a:$$\hat{\beta}=\dfrac{\sum y_i}{\sum x_i}$$
+
+Derivando con respecto $\sigma$, obtenemos:
+
+\begin{align*}
+    \dfrac{\partial l \left(\beta, \sigma^2 \right)}{\partial \sigma}&=-\dfrac{-2\sigma^{-3}}{2}\sum \frac{\left(y_i-x_i\beta\right)^2}{x_i}-\dfrac{n}{2}\dfrac{2\pi2\sigma}{2\pi\sigma^2}\\
+    &=\sigma^{-3}\sum \frac{\left(y_i-x_i\beta\right)^2}{x_i}-\dfrac{n}{\sigma}
+\end{align*}
+
+Igualamos a cero para encontrar el máximo
+
+\begin{align*}
+    0&=\sigma^{-3}\sum \frac{\left(y_i-x_i\beta\right)^2}{x_i}-\dfrac{n}{\sigma}\\
+    \dfrac{n}{\sigma}&=\sigma^{-3}\sum \frac{\left(y_i-x_i\beta\right)^2}{x_i}
+\end{align*}
+
+Así, el estimador de sigma es igual a:$$\hat\sigma^2=\frac{1}{n}\sum \frac{\left(y_i-x_i\beta\right)^2}{x_i}$$
+
+b. Sabemos que: $y_i\sim N(\beta x_i, \sigma^2x_i)$ y
+
+\begin{align*}
+    E(\hat{\beta}) &= \frac{1}{\sum x_i} \sum E(y_i) = \frac{\sum \beta x_i}{\sum x_i} = \beta \\ \\
+    var(\hat{\beta}) &= \frac{1}{(\sum x_i)^2}\sum var(y_i) = \frac{\sum \sigma^2 x_i}{(\sum x_i)^2} = \frac{\sigma^2}{\sum x_i}
+\end{align*}
+Entonces,
+\begin{align*}
+    \hat{\beta}&\sim N\left(\beta,\frac{\sigma^2}{\sum_i x_i} \right)
+\end{align*}
+Así,
+\begin{align*}
+    \dfrac{\hat{\beta}-\beta}{\sqrt{\frac{\sigma^2}{\sum_i x_i}}}\sim N(0,1)
+\end{align*}
+Ahora podemos construir el intervalo de confianza.
+
+$$-z_{\alpha/2}\leq\dfrac{\hat{\beta}-\beta}{\sqrt{\frac{\sigma^2}{\sum_i x_i}}}\leq z_{\alpha/2}$$
+$$-z_{\alpha/2}\frac{\sigma}{\sqrt{\sum_i x_i}}\leq \hat{\beta}-\beta\leq z_{\alpha/2}\frac{\sigma}{\sqrt{\sum_i x_i}}$$
+$$\hat{\beta}-z_{\alpha/2}\frac{\sigma}{\sqrt{\sum_i x_i}}\leq\beta\leq \hat{\beta}+z_{\alpha/2}\frac{\sigma}{\sqrt{\sum_i x_i}}$$
+
+
+c.
+```{R }
+conta<-0
+simu<-10000
+for (i in 1:simu) {
+  x<-0:100/100
+  std<-2/sqrt(sum(x))
+  y<-2*x+rnorm(101,0,2*sqrt(x))
+  limsup<-sum(y)/sum(x)+qnorm(1-0.025)*std
+  liminf<-sum(y)/sum(x)+qnorm(0.025)*std
+  ifelse(2<=limsup&2>=liminf,conta<-conta+1,conta<-conta)
+  
+}
+conta/simu
+```
+Asi, intervalo de la parte b tiene la cobertura correcta.
+
+
+# Problema 2
+A continuación se muestran los valores de la variable de respuesta para el siguiente modelo:
+$y_i= \alpha i/10 + \beta i^2/100 +\epsilon_i$
+
+a. Prueba al nivel del $5\%$
+$$H_0:\beta=0\text{ vs }H_a:\beta\ne 0$$
+es decir, queremos probar si se necesita un término cuadrático
+
+b. Si de hecho $\beta= 0.015$, ¿cuál es la potencia de esta prueba si el valor del estadístico de la prueba F es el mismo que en el inciso a? (Usar $\sigma= 1 / 2$)
+```{R, echo=FALSE}
+y<-c(1.1, 0.9, 1.1, 0.2, 1.3, 1.6, 0.9, 1.2, 1.3, 1.7,
+      1.9, 1.9, 3.1, 2.5, 2.8, 1.7, 2.6, 2.6, 2.2, 3.1,
+      3.2, 3.3, 3.3, 3.3, 3.6, 3.9, 2.7, 5.1, 4, 3.3, 2.5,
+      3.7, 5, 3.6, 3.4, 5.2, 4.6, 5, 4.6, 4.4, 4.5, 4.7, 
+      4.7, 5.7, 5.9, 5.7, 5.9, 6.2, 7.2, 7.1, 6.3, 7.1, 
+      6.8, 6.7, 6.7, 6.3, 7.3, 7.8, 7.1, 7.1, 7.1, 8.1, 
+      7.7, 8, 8.4, 7.6, 8, 7.6, 8.3, 8.9, 8.8, 8.7, 8.2, 
+      8.7, 8.6, 9.3, 8.7, 9, 9.7, 9.5, 8.8, 9.1, 9.8, 9.5,
+      9.2, 10.5, 10.3, 9.5, 10, 10.7, 11.5)
+y
+```
+
+## Solución 2
+a. Notemos que 
+\begin{align*}
+\pmb{y}&=\pmb{X\beta} + \pmb{\varepsilon}\\ \\
+    \begin{pmatrix}
+y_1\\y_2\\ \vdots\\y_n\\
+    \end{pmatrix}&=
+    \begin{pmatrix}
+1/10 & 1^2/10^2\\
+2/10 & 2^2/10^2\\ 
+\vdots & \vdots\\
+n/10 & n^2/10^2\\
+    \end{pmatrix}
+    \begin{pmatrix}
+\beta\\\alpha
+    \end{pmatrix} + \begin{pmatrix}
+\varepsilon_1\\\varepsilon_2\\ \vdots\\\varepsilon_n\\
+    \end{pmatrix}
+\end{align*}
+```{R }
+x1<-c(10:100/10)
+x2<-c((10:100)^2)/100
+X<-cbind(x1,x2)
+```
+Por la definición 6.2.1 obtenemos que $E(\pmb{y})=\pmb{X\beta}$ y $var(\pmb{y})=\sigma^2\pmb{I}$. Entonces cumple las hipótesis del teorema 6.6.7. El estadistico esta dado por: 
+
+$$F=\frac{\pmb{y'(H-H_1)y}/h}{\pmb{y'(I-H)y}/(n-k-1)}$$
+
+Ahora podemos encontrar la matriz $\pmb{H}$ y $\pmb{H_1}$ que viene dadas por: 
+\begin{align*}
+    \pmb{H}=\pmb{X}(\pmb{X}'\pmb{X})^{-1}\pmb{X}' \\
+    \pmb{H}_1=\pmb{X}_1(\pmb{X}_1'\pmb{X}_1)^{-1}\pmb{X}_1'
+\end{align*}
+```{R}
+H<-X%*%solve(t(X)%*%X)%*%t(X)
+H1<-x1%*%solve(t(x1)%*%x1)%*%t(x1)
+```
+Encontremos el rango de $H-H_1$
+```{R}
+library(Matrix)
+rankMatrix(H-H1)[1]
+```
+Pasemos a encontrar $F$
+```{R}
+num<-(t(y)%*%(H-H1)%*%y)*(91-2)
+den<-t(y)%*%(diag(91)-H)%*%y
+F<-num/den 
+F
+```
+y
+```{R}
+qf(0.05,1,91-2,lower.tail = FALSE) 
+qf(1-0.05,1,91-2,lower.tail = FALSE)
+```
+Podemos ver que $F_{1-0.05,1,91-2}<F<F_{0.05,1,91-2}$
+
+Así, se acepta la hipotesis nula
+
+b. Para encontrar el poder, primero necesitamos encontrar el parametro de no centralidad. El cual esta dado por:
+$$\lambda=\pmb{\beta}[\pmb{X}_2'\pmb{X}_2-\pmb{X}_2'\pmb{X}_1(\pmb{X}_1'\pmb{X}_1)^{-1}\pmb{X}_1'\pmb{X}_2]\pmb{\beta}/(2\sigma^2)$$
+```{R}
+beta2<-0.015
+sigma<-1/2
+lam<-beta2*(t(x2)%*%x2-t(x2)%*%x1%*%solve(t(x1)%*%x1)%*%t(x1)%*%x2)*beta2/(2*sigma^2)
+lam
+```
+El poder esta dado por:
+```{R}
+1-pf(qf(1-0.05,1,91-2,lower.tail = TRUE),1,91-2,lam)
+```
+Asi tiene un poder del $65\%$.

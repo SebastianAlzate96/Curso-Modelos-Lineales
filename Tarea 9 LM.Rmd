@@ -1,0 +1,130 @@
+---
+title: "Homework 9"
+author: "Sebastian Alzate Vargas"
+date: "04/15/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Problem 1
+Tenemos datos $X_1,..,X_n\sim N(\mu_x,\sigma)$ y $Y_1,..,Y_m\sim N(\mu_y,\sigma)$, $\sigma$ desconocido. (Este es el llamado problema de dos muestras ). Di que queremos probar 
+$$H_0:\mu_x=\mu_y\text{ vs. }H_0:\mu_x\ne\mu_y$$
+La prueba clásica se basa en la estadística de prueba $$T=\frac{\bar{x}-\bar{y}}{s_p\sqrt{1/n+1/m}}$$
+donde $s_p^2=\frac{(n-1)s_x^2+(m-1)s_y^2}{n+m-2}$ s2yn + m - 2 se llama desviación estándar agrupada. Bajo la hipótesis nula $T\sim t(n+m-2)$ y la prueba rechaza la hipótesis nula si $|T|>qt_{\alpha/2,n+m-2}$
+
+Derive el problema de dos muestras como un caso especial de ANOVA.
+
+# Problem 2
+En un experimento, un ingeniero industrial estudió el efecto del tipo de recubrimiento y su espesor sobre la durabilidad de un cierto tipo de pintura. Había tres tipos de recubrimientos etiquetados como 1, 2 y 3, y tres niveles de espesor etiquetados como delgado, medio y grueso. La durabilidad se midió en días. Los datos son
+
+![](C:\Users\sebas\Downloads/Captu1.PNG){width='500px'}
+
+Analice estos datos para ver qué efecto (s), si alguno, tiene el tipo de recubrimiento y el espesor sobre la durabilidad. Específicamente, ¿qué combinación (es) de factor-nivel es (es) estadísticamente significativa la mejor?
+
+## Solution 1
+Para el problema de problema de dos muestras tenemos que: $$T=\frac{\bar{x}-\bar{y}}{s_p\sqrt{\frac{1}{n}+\frac{1}{m}}}$$
+
+Donde $$s_p^2=\frac{(n-1)s_x^2+(m-1)s_y^2}{n+m-2}$$
+
+Como $T\sim t(n+m-2)$, entonces por teorema 5.4.14, se cumple $T^2 \sim F(1,n+m-2)$. Así,
+
+$$T^2 = \frac{(\bar{x}-\bar{y})^2}{s_p^2\left(\frac{1}{n}+\frac{1}{m}\right)}$$
+
+Por otro lado, consideremos $c=(c_1,c_2)=(1,-1)$. Es facil ver que $\sum c_i = 0$.
+El tests de contrastes son esencialmente comparaciones de medias. En nuestro problema,
+$$H_0: \mu_x-\mu_y = 0 \ vs \ H_a:\mu_x-\mu_y \neq 0$$
+Y el estadistico de prueba esta dado por:
+\begin{align*}
+    F= \frac{\left( c_1\bar{x}+c_2\bar{y}\right)^2}{s^2\cdot\left(\frac{c_1}{n}+\frac{c_2}{m} \right)}= \frac{\left(1\cdot \bar{x} + (-1)\cdot\bar{y}\right)^2}{s^2\cdot \left(\frac{1^2}{n}+\frac{(-1)^2}{m}\right)}
+\end{align*}
+
+Por otro lado, usando la definición 7.4.4
+
+\begin{align*}
+    s^2 = \frac{SSE}{n+m-2} &= \frac{\sum_{j=1}^n(x_j-\bar{x})^2 + \sum_{j=1}^n(y_j-\bar{y})^2}{n+m-2}\\
+    &= \frac{(n-1)S_x^2 + (m-1)S_y^2}{n+m-2}
+\end{align*}
+
+Así, $F\sim F(1,n+m-2)$
+
+Finalmente, los dos estadísticos $F$ y $T^2$ se distribuyen igual. Y se rechaza $H_0$ cuando $F > qf(\alpha,1,n+m-2)$, de esta manera tenemos que $\text{Two sample problem}$ es un caso particular de un $\text{Anova}$
+
+## Solution 2
+Nuestros datos se pueden poner de la siguiente forma:
+
+```{r}
+durability<-c(166, 154, 155, 156, 149,167, 171, 166, 165, 185,181, 185, 178, 178, 174,
+              219, 241, 216, 220, 220,263, 241, 246, 245, 224,242, 258, 257, 242, 250,
+              277, 276, 277, 278, 280,309, 281, 309, 302, 314,350, 348, 359, 340, 342)
+
+coating<-c(rep(c(1,2,3),c(15,15,15)))
+thickness<-rep(c("thin","medium","thick"),each=5,times=3)
+datos<-data.frame(durability=durability,coating=as.factor(coating),thickness=thickness)
+head(datos)
+```
+Hallemos la media de cada grupo
+
+```{r}
+means <- tapply(datos$durability, datos[, -1], mean)
+means
+```
+Construyamos la grafica de interaccion, de esta manera encontramos las repuestas media para combinacion factor-level. Utilizamos "coating" para el eje $x$ y "means" para el eje $y$
+
+```{r}
+library(ggplot2)
+df<-data.frame(Coating=rep(1:3, 3), Means=c(means),
+               thickness = 
+               rep(c("medium", "thick", "thin"), each=3))
+ggplot(data=df, aes(Coating, Means, color=thickness)) +
+            geom_point() + geom_line()
+```
+El grafico parece indicar que el incremento de durabilidad entre los tres tipos de thickness es proporcional para los tres tipos de coating. Hay una ligera variabilidad en el coating 3. Entonces parece haber interaccion entre factor-levels. Sin embargo podemos
+realizar una prueba formal de interacion para comprobar lo que nos muestra la grafica.
+
+Queremos testear: $$H_0:\gamma^*_{ij}=0 \ \ \text{vs} \ \ H_0:\gamma^*_{ij}\neq0$$ 
+
+El estadistico de prueba esta dado por: $$F=\frac{\text{SS}(\gamma|\mu,\alpha,\beta)/[(I-1)(J-1)]}{\text{SSE}/[IJ(n-1)]}$$
+
+Donde $F\sim f((I-1)(J-1),IJ(n-1))$
+
+Hallemos primero SSE
+
+```{r}
+y<-datos$durability
+I<-3;J<-3;n<-5
+yij.<-tapply(y, datos[, -1], sum)
+yi..<-tapply(y, datos[, 2], sum)
+y.j.<-tapply(y, datos[, 3], sum)
+y...<-sum(y)
+sse <-sum(y^2)-sum(yij.^2)/n
+```
+Ahora encontremos SSGAMMA y el estadistico de prueba
+
+```{r}
+ssgamma<-sum(yij.^2)/n-sum(yi..^2)/(n*J)-sum(y.j.^2)/(n*I)+y...^2/(n*I*J)
+FTS<-(ssgamma/((I-1)*(J-1)))/(sse/(I*J*(n-1)))
+```
+En resumen tenemos
+
+```{r}
+round(c(sse/c(1, I*J*(n-1)), ssgamma/c(1, (I-1)*(J-1)), 
+        FTS, 1-pf(FTS, (I-1)*(J-1), I*J*(n-1))), 3)
+```
+
+El análisis de varianza confirma que existe interacción significativa entre "Coating" y "Thickness". Tambien hay influencia significativa entre durabilidad sobre la pintura por parte de los factores. Como se encontro que la interaccion es estadisticamente significativa, entonces no debemos probar los factores individuales. Podemos verificar los resultados anteriores con el comando aov
+
+```{r}
+anova<-aov(durability~.^2,data=datos)
+summary(anova)
+```
+
+Veamos cual combinacion factor-levels son las mejores significativamente con el p-value o cuales las diferencias de medias son mas grandes.
+
+```{r}
+tuk<-TukeyHSD(anova)$`coating:thickness`
+tuk1<-tuk[order(tuk[,4],decreasing = FALSE),]
+head(tuk1[,-(2:3)],n=12)
+```
+
+
